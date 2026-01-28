@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "rootDir": "./src/",
+        "outDir": "./dist",
+        "forceConsistentCasingInFileNames": true,
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "target": "ES2022",
+        "esModuleInterop": true,
+        "types": ["node"], // 👈 Add "node" here
+        "strict": true,
+        "skipLibCheck": true,
+        "verbatimModuleSyntax": false, // 👈 Set this to false for now
+        "isolatedModules": true
+    }
+}
