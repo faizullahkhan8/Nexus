@@ -5,10 +5,20 @@ export const entrepreneurProfileSchema = yup.object({
         startupName: yup.string().required("Startup name is required").trim(),
         industry: yup.string().required("Industry is required"),
         pitchSummary: yup.string().required("Pitch summary is required"),
-        fundingNeeded: yup
-            .number()
-            .min(0)
-            .required("Funding amount is required"),
+        fundingRound: yup
+            .array()
+            .of(
+                yup.object({
+                    round: yup.number().required("Funding round is required"),
+                    amount: yup
+                        .number()
+                        .min(0)
+                        .required("Funding amount is required"),
+                    isCurrent: yup.boolean().default(false),
+                    date: yup.date().required("Funding date is required"),
+                }),
+            )
+            .min(1, "At least one funding round is required"),
         location: yup.string().required("Location is required"),
         foundedYear: yup
             .number()
@@ -16,7 +26,6 @@ export const entrepreneurProfileSchema = yup.object({
             .min(1800)
             .max(new Date().getFullYear())
             .required(),
-        teamSize: yup.number().integer().min(1).required(),
         startupOverview: yup
             .array()
             .of(

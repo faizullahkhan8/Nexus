@@ -38,6 +38,19 @@ export const authApi = createApi({
                 method: "GET",
             }),
         }),
+        getEntrepreneurById: builder.query({
+            query: (id: string) => ({
+                url: `/entrepreneur/get/${id}`,
+                method: "GET",
+            }),
+        }),
+        updateEntrepreneur: builder.mutation({
+            query: (updateData) => ({
+                url: `/entrepreneur/profile/update`,
+                method: "PUT",
+                body: updateData,
+            }),
+        }),
     }),
 });
 
@@ -46,4 +59,6 @@ export const {
     useSignupMutation,
     useLogoutMutation,
     useGetMeQuery,
+    useGetEntrepreneurByIdQuery,
+    useUpdateEntrepreneurMutation,
 } = authApi;

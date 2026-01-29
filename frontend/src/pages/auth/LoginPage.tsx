@@ -32,9 +32,11 @@ export const LoginPage: React.FC = () => {
 
             dispatch(
                 loginAction({
+                    _id: payload.user._id,
                     name: payload.user.name,
                     email: payload.user.email,
                     role: payload.user.role,
+                    avatarUrl: payload.user.avatarUrl,
                 }),
             );
 

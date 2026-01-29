@@ -1,24 +1,55 @@
 export type UserRole = "entrepreneur" | "investor";
 
 export interface User {
-    id: string;
+    _id: string;
     name: string;
     email: string;
     role: UserRole;
     avatarUrl: string;
-    bio: string;
     isOnline?: boolean;
     createdAt: string;
 }
 
+export interface IfundingRound {
+    round: number;
+    amount: number;
+    isCurrent: boolean;
+    date: string;
+}
+
+export interface StartupOverview {
+    heading: string;
+    paragraph: string;
+}
+
+export interface ITeamMember {
+    name: string;
+    avatarUrl?: string;
+    role: string;
+}
+
 export interface Entrepreneur extends User {
     startupName: string;
+    bio: string;
     pitchSummary: string;
-    fundingNeeded: string;
+    fundingRound: IfundingRound[];
+    valuation: {
+        min: number;
+        max: number;
+    };
+    startupOverview: StartupOverview[];
     industry: string;
     location: string;
     foundedYear: number;
-    teamSize: number;
+    team: ITeamMember[];
+    user?: {
+        _id: string;
+        name: string;
+        email: string;
+        role: UserRole;
+        avatarUrl: string;
+        isOnline?: boolean;
+    };
 }
 
 export interface Investor extends User {
@@ -28,6 +59,14 @@ export interface Investor extends User {
     totalInvestments: number;
     minimumInvestment: string;
     maximumInvestment: string;
+    user: {
+        _id: string;
+        name: string;
+        email: string;
+        role: UserRole;
+        avatarUrl: string;
+        isOnline?: boolean;
+    };
 }
 
 export interface Message {

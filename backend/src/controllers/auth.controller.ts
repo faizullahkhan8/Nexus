@@ -253,11 +253,13 @@ export const updateEntrepreneurProfile = asyncHandler(
 export const getSingleEntrepreneur = asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
         const LocalEntrepreneurModel = getLocalEntrepreneurModel();
-        const { id } = req.params;
+        const { id: userId } = req.params;
 
-        const entrepreneur = await LocalEntrepreneurModel.findById(id)
-            .populate("user", "name email role")
-            .populate("connections", "name email");
+        const entrepreneur = await LocalEntrepreneurModel.findOne({
+            user: userId,
+        })
+            .populate("user", "_id name email role isOnline avatarUrl")
+            .populate("connections", "_id name email");
 
         if (!entrepreneur) {
             return next(
