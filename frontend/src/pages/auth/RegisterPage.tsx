@@ -12,6 +12,8 @@ import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { UserRole } from "../../types";
 import { useSignupMutation } from "../../services/auth.service";
+import { useDispatch } from "react-redux";
+import { login } from "../../features/auth.slice";
 
 export const RegisterPage: React.FC = () => {
     const [name, setName] = useState("");
@@ -21,8 +23,9 @@ export const RegisterPage: React.FC = () => {
     const [role, setRole] = useState<UserRole>("entrepreneur");
     const [error, setError] = useState<string | null>(null);
 
-    const [signUp, { isLoading }] = useSignupMutation();
+    const [signUp, { isLoading, data }] = useSignupMutation();
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -36,6 +39,8 @@ export const RegisterPage: React.FC = () => {
 
         try {
             await signUp({ name, email, password, role });
+
+            dispatch(login(data.user));
             // Redirect based on user role
             navigate(
                 role === "entrepreneur"

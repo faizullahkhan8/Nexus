@@ -6,6 +6,7 @@ export interface IAuthProps {
     email: string;
     role: string;
     avatarUrl?: string;
+    isOnline?: boolean;
 }
 
 const initialState: IAuthProps = {
@@ -14,6 +15,7 @@ const initialState: IAuthProps = {
     email: "",
     role: "",
     avatarUrl: "",
+    isOnline: false,
 };
 
 export const AuthSlice = createSlice({
@@ -26,6 +28,7 @@ export const AuthSlice = createSlice({
             state.email = action.payload.email;
             state.role = action.payload.role;
             state.avatarUrl = action.payload.avatarUrl;
+            state.isOnline = action.payload.isOnline;
         },
         logout: (state) => {
             state._id = "";
@@ -33,6 +36,7 @@ export const AuthSlice = createSlice({
             state.name = "";
             state.avatarUrl = "";
             state.role = "";
+            state.isOnline = false;
         },
     },
 });

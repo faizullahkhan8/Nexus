@@ -6,6 +6,7 @@ import {
     Building2,
     LogIn,
     AlertCircle,
+    Lock,
 } from "lucide-react";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
@@ -30,15 +31,7 @@ export const LoginPage: React.FC = () => {
         try {
             const payload = await login({ email, password, role }).unwrap();
 
-            dispatch(
-                loginAction({
-                    _id: payload.user._id,
-                    name: payload.user.name,
-                    email: payload.user.email,
-                    role: payload.user.role,
-                    avatarUrl: payload.user.avatarUrl,
-                }),
-            );
+            dispatch(loginAction(payload.user));
 
             navigate(
                 payload.user.role === "entrepreneur"
@@ -138,6 +131,7 @@ export const LoginPage: React.FC = () => {
                         <Input
                             label="Email address"
                             type="email"
+                            placeholder="Enter your email..."
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
@@ -148,28 +142,15 @@ export const LoginPage: React.FC = () => {
                         <Input
                             label="Password"
                             type="password"
+                            placeholder="Enter your password..."
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            startAdornment={<Lock size={18} />}
                             required
                             fullWidth
                         />
 
                         <div className="flex items-center justify-between">
-                            <div className="flex items-center">
-                                <input
-                                    id="remember-me"
-                                    name="remember-me"
-                                    type="checkbox"
-                                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                                />
-                                <label
-                                    htmlFor="remember-me"
-                                    className="ml-2 block text-sm text-gray-900"
-                                >
-                                    Remember me
-                                </label>
-                            </div>
-
                             <div className="text-sm">
                                 <a
                                     href="#"

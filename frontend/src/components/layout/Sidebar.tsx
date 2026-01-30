@@ -1,6 +1,5 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
 import {
     Home,
     Building2,
@@ -12,6 +11,8 @@ import {
     Settings,
     HelpCircle,
 } from "lucide-react";
+import { useSelector } from "react-redux";
+import { IAuthProps } from "../../features/auth.slice";
 
 interface SidebarItemProps {
     to: string;
@@ -24,7 +25,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ to, icon, text }) => {
         <NavLink
             to={to}
             className={({ isActive }) =>
-                `flex items-center py-2.5 px-4 rounded-md transition-colors duration-200 ${
+                `flex items-center py-2.5 px-4 rounded-md transition-colors duration-100 ${
                     isActive
                         ? "bg-primary-50 text-primary-700"
                         : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
@@ -38,7 +39,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ to, icon, text }) => {
 };
 
 export const Sidebar: React.FC = () => {
-    const { user } = useAuth();
+    const user = useSelector((state: { auth: IAuthProps }) => state.auth);
 
     if (!user) return null;
 
@@ -50,7 +51,7 @@ export const Sidebar: React.FC = () => {
             text: "Dashboard",
         },
         {
-            to: "/profile/entrepreneur/" + user.id,
+            to: "/profile/entrepreneur/" + user._id,
             icon: <Building2 size={20} />,
             text: "My Startup",
         },
@@ -79,7 +80,7 @@ export const Sidebar: React.FC = () => {
             text: "Dashboard",
         },
         {
-            to: "/profile/investor/" + user.id,
+            to: "/profile/investor/" + user._id,
             icon: <CircleDollarSign size={20} />,
             text: "My Portfolio",
         },

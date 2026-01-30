@@ -52,13 +52,29 @@ export interface Entrepreneur extends User {
     };
 }
 
+export interface IPortfolioCompanies {
+    name: string;
+    date: string;
+    amountInvested: number;
+}
+
+export interface IInvestmentInterests {
+    interest: string;
+    percentage: number;
+}
+
 export interface Investor extends User {
-    investmentInterests: string[];
-    investmentStage: string[];
-    portfolioCompanies: string[];
+    investmentInterests: IInvestmentInterests[];
+    investmentStages: string[];
+    portfolioCompanies: IPortfolioCompanies[];
+    investmentCriteria: string[];
     totalInvestments: number;
-    minimumInvestment: string;
-    maximumInvestment: string;
+    location: string;
+    investmentRange: {
+        minAmount: number;
+        maxAmount: number;
+    };
+    bio: string;
     user: {
         _id: string;
         name: string;

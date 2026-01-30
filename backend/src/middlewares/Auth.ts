@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from "express";
 import ErrorResponse from "../utils/ErrorResponse";
 
 export const protect = (req: Request, res: Response, next: NextFunction) => {
-    console.log(req.session.user);
     if (req.session && req.session.user) {
         return next();
     } else {

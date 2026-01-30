@@ -12,18 +12,17 @@ import {
 } from "lucide-react";
 import { Avatar } from "../ui/Avatar";
 import { Button } from "../ui/Button";
-import { useGetMeQuery, useLogoutMutation } from "../../services/auth.service";
+import { useLogoutMutation } from "../../services/auth.service";
+import { useDispatch, useSelector } from "react-redux";
+import { IAuthProps, logout as logoutAction } from "../../features/auth.slice";
 
 export const Navbar: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [logout] = useLogoutMutation();
+    const [logout, { isLoading, isSuccess }] = useLogoutMutation();
     const navigate = useNavigate();
 
-    const { data } = useGetMeQuery({});
-
-    let user;
-
-    if (data) user = data?.user;
+    const user = useSelector((state: { auth: IAuthProps }) => state.auth);
+    const dispatch = useDispatch();
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -31,7 +30,10 @@ export const Navbar: React.FC = () => {
 
     const handleLogout = () => {
         logout({});
-        navigate("/login");
+        dispatch(logoutAction());
+        if (!isLoading && isSuccess) {
+            navigate("/login");
+        }
     };
 
     // User dashboard route based on role
@@ -131,7 +133,7 @@ export const Navbar: React.FC = () => {
                                     onClick={handleLogout}
                                     leftIcon={<LogOut size={18} />}
                                 >
-                                    Logout
+                                    {isLoading ? "Logging out..." : "Logout"}
                                 </Button>
 
                                 <Link
@@ -190,7 +192,10 @@ export const Navbar: React.FC = () => {
                             <>
                                 <div className="flex items-center space-x-3 px-3 py-2">
                                     <Avatar
-                                        src={user.avatarUrl}
+                                        src={
+                                            user.avatarUrl ||
+                                            `https://dummyjson.com/image/150x150/008080/ffffff?text=${user.name.split(" ")[0][0]}+${user.name.split(" ")[user.name.split(" ").length - 1][0]}`
+                                        }
                                         alt={user.name}
                                         size="sm"
                                         status={

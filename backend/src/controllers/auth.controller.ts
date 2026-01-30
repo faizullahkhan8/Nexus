@@ -72,6 +72,7 @@ export const signup = asyncHandler(
                     name: user.name,
                     email: user.email,
                     role: user.role,
+                    avatarUrl: user.avatarUrl,
                 },
             });
         } else {
@@ -114,6 +115,7 @@ export const login = asyncHandler(
                     name: user.name,
                     email: user.email,
                     role: user.role,
+                    avatarUrl: user.avatarUrl,
                 },
             });
         } else {
@@ -259,7 +261,7 @@ export const getSingleEntrepreneur = asyncHandler(
             user: userId,
         })
             .populate("user", "_id name email role isOnline avatarUrl")
-            .populate("connections", "_id name email");
+            .populate("connections", "_id name email isOnline avatarUrl");
 
         if (!entrepreneur) {
             return next(
@@ -283,7 +285,7 @@ export const getAllEntrepreneurs = asyncHandler(
         const LocalEntrepreneurModel = getLocalEntrepreneurModel();
 
         const entrepreneurs = await LocalEntrepreneurModel.find()
-            .populate("user", "name email role")
+            .populate("user", "name email role isOnline avatarUrl")
             .populate("connections", "name email");
 
         if (!entrepreneurs) {
@@ -330,10 +332,9 @@ export const getSingleInvestor = asyncHandler(
         const LocalInvestorModel = getLocalInvestorModel();
         const { id } = req.params;
 
-        const investor = await LocalInvestorModel.findById(id).populate(
-            "user",
-            "name email role",
-        );
+        const investor = await LocalInvestorModel.findOne({
+            user: id,
+        }).populate("user", "name email role isOnline avatarUrl");
 
         if (!investor) {
             return next(new ErrorResponse("Investor profile not found", 404));

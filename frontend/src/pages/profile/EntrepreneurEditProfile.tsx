@@ -249,10 +249,14 @@ const EntrepreneurEditProfile = () => {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                <label
+                                    htmlFor="industry"
+                                    className="block text-sm font-semibold text-slate-700 mb-2"
+                                >
                                     Industry *
                                 </label>
                                 <select
+                                    id="industry"
                                     value={formData.industry}
                                     onChange={(e) =>
                                         setFormData({

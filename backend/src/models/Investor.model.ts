@@ -1,10 +1,22 @@
 import { Document, Schema, Types } from "mongoose";
 
+export interface IPortfolioCompanies {
+    name: string;
+    date: string;
+    amountInvested: number;
+}
+
+export interface IInvestmentInterests {
+    interest: string;
+    percentage: number;
+}
+
 export interface IInvestor extends Document {
     user: Types.ObjectId;
-    investmentInterests: string[];
+    investmentInterests: IInvestmentInterests[];
     investmentStages: string[];
-    portfolioCompanies: string[];
+    portfolioCompanies: IPortfolioCompanies[];
+    bio: string;
     investmentRange: {
         minAmount: number;
         maxAmount: number;
@@ -15,56 +27,65 @@ export interface IInvestor extends Document {
     profileViews: number;
 }
 
-export const InvestorSchema = new Schema<IInvestor>({
-    user: {
-        type: Schema.Types.ObjectId,
-        ref: "Users",
-        required: true,
-    },
-    investmentInterests: [
-        {
-            type: String,
+export const InvestorSchema = new Schema<IInvestor>(
+    {
+        user: {
+            type: Schema.Types.ObjectId,
+            ref: "Users",
             required: true,
         },
-    ],
-    investmentStages: [
-        {
-            type: String,
-            required: true,
+        investmentInterests: [
+            {
+                interest: { type: String, required: true },
+                percentage: { type: Number, required: true },
+            },
+        ],
+        investmentStages: [
+            {
+                type: String,
+                required: true,
+            },
+        ],
+        portfolioCompanies: [
+            {
+                name: { type: String, required: true },
+                date: { type: String, required: true },
+                amountInvested: { type: Number, required: true },
+            },
+        ],
+        investmentRange: {
+            minAmount: {
+                type: Number,
+                required: true,
+                default: 0,
+            },
+            maxAmount: {
+                type: Number,
+                required: true,
+                default: 0,
+            },
         },
-    ],
-    portfolioCompanies: [
-        {
-            type: String,
-        },
-    ],
-    investmentRange: {
-        minAmount: {
+        totalInvestments: {
             type: Number,
-            required: true,
             default: 0,
         },
-        maxAmount: {
-            type: Number,
+        investmentCriteria: [
+            {
+                type: String,
+            },
+        ],
+        location: {
+            type: String,
             required: true,
+        },
+        profileViews: {
+            type: Number,
             default: 0,
         },
-    },
-    totalInvestments: {
-        type: Number,
-        default: 0,
-    },
-    investmentCriteria: [
-        {
+        bio: {
             type: String,
+            required: true,
         },
-    ],
-    location: {
-        type: String,
-        required: true,
     },
-    profileViews: {
-        type: Number,
-        default: 0,
-    },
-});
+    { timestamps: true },
+);

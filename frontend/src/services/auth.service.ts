@@ -51,6 +51,19 @@ export const authApi = createApi({
                 body: updateData,
             }),
         }),
+        getInvestorById: builder.query({
+            query: (id: string) => ({
+                url: `/investor/get/${id}`,
+                method: "GET",
+            }),
+        }),
+        updateInvestor: builder.mutation({
+            query: (updateData) => ({
+                url: `/investor/profile/update`,
+                method: "PUT",
+                body: updateData,
+            }),
+        }),
     }),
 });
 
@@ -61,4 +74,6 @@ export const {
     useGetMeQuery,
     useGetEntrepreneurByIdQuery,
     useUpdateEntrepreneurMutation,
+    useGetInvestorByIdQuery,
+    useUpdateInvestorMutation,
 } = authApi;

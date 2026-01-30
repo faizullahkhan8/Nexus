@@ -35,6 +35,7 @@ import { DealsPage } from "./pages/deals/DealsPage";
 
 // Chat Pages
 import { ChatPage } from "./pages/chat/ChatPage";
+import InvestorEditProfile from "./pages/profile/InvestorEditProfile";
 
 function App() {
     return (
@@ -66,6 +67,10 @@ function App() {
                         <Route
                             path="entrepreneur/profile/edit"
                             element={<EntrepreneurEditProfile />}
+                        />
+                        <Route
+                            path="investor/profile/edit"
+                            element={<InvestorEditProfile />}
                         />
                         <Route
                             path="investor/:id"
