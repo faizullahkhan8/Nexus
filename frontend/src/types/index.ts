@@ -102,12 +102,14 @@ export interface ChatConversation {
 }
 
 export interface CollaborationRequest {
-    id: string;
-    investorId: string;
-    entrepreneurId: string;
-    message: string;
+    _id: string;
+    senderId: string;
+    receiverId: string;
+    type: "Connection" | "DocumentAccess" | "Meeting";
+    documentId?: string;
     status: "pending" | "accepted" | "rejected";
     createdAt: string;
+    message: string;
 }
 
 export interface Document {

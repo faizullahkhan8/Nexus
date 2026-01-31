@@ -5,11 +5,13 @@ import {
     EntrepreneurSchema,
 } from "../models/Entrepreneur.model";
 import { IInvestor, InvestorSchema } from "../models/Investor.model";
+import { IRequest, requestSchema } from "../models/request.model";
 
 let LocalDbConnection: Connection;
 let LocalUserModel: Model<IUserProps>;
 let LocalEntrepreneurModel: Model<IEntrepreneur>;
 let LocalInvestorModel: Model<IInvestor>;
+let LocalRequestModel: Model<IRequest>;
 
 export const connectLocalDb = async () => {
     LocalDbConnection = await createConnection(
@@ -33,9 +35,15 @@ export const connectLocalDb = async () => {
             "Investors",
             InvestorSchema,
         );
+
+        LocalRequestModel = LocalDbConnection.model<IRequest>(
+            "Requests",
+            requestSchema,
+        );
     }
 };
 
 export const getLocalUserModel = () => LocalUserModel || null;
 export const getLocalEntrepreneurModel = () => LocalEntrepreneurModel || null;
 export const getLocalInvestorModel = () => LocalInvestorModel || null;
+export const getLocalRequestModel = () => LocalRequestModel || null;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
     User as UserIcon,
     Lock,
@@ -12,26 +12,11 @@ import { Input } from "../../components/ui/Input";
 import { Button } from "../../components/ui/Button";
 import { Badge } from "../../components/ui/Badge";
 import { Avatar } from "../../components/ui/Avatar";
-import { useGetMeQuery } from "../../services/auth.service";
-import { User } from "../../types";
+import { useSelector } from "react-redux";
+import { IAuthProps } from "../../features/auth.slice";
 
 export const SettingsPage: React.FC = () => {
-    const { data, isLoading } = useGetMeQuery({});
-    const [user, setUser] = useState<User>();
-
-    useEffect(() => {
-        if (data?.user) {
-            setUser(data.user);
-        }
-    }, [data]);
-
-    if (isLoading || !user) {
-        return (
-            <div className="flex items-center justify-center h-64">
-                <p className="text-gray-500">Loading settings...</p>
-            </div>
-        );
-    }
+    const user = useSelector((state: { auth: IAuthProps }) => state.auth);
 
     const getInitials = (name: string) => {
         const parts = name.split(" ");
@@ -141,7 +126,7 @@ export const SettingsPage: React.FC = () => {
                                 <textarea
                                     className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                                     rows={4}
-                                    defaultValue={user.bio}
+                                    defaultValue={user?.bio}
                                     placeholder="Your bio goes here..."
                                 ></textarea>
                             </div>

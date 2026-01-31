@@ -18,7 +18,7 @@ const initialState: IAuthProps = {
     isOnline: false,
 };
 
-export const AuthSlice = createSlice({
+const AuthSlice = createSlice({
     name: "auth",
     initialState,
     reducers: {

@@ -15,14 +15,15 @@ import { Avatar } from "../../components/ui/Avatar";
 import { Button } from "../../components/ui/Button";
 import { Card, CardBody, CardHeader } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
-import {
-    createCollaborationRequest,
-    getRequestsFromInvestor,
-} from "../../data/collaborationRequests";
-import { Entrepreneur } from "../../types";
+import { CollaborationRequest, Entrepreneur } from "../../types";
 import { useSelector } from "react-redux";
 import { useGetEntrepreneurByIdQuery } from "../../services/auth.service";
 import { IAuthProps } from "../../features/auth.slice";
+import {
+    useCreateRequestMutation,
+    useGetAllUserRequestsQuery,
+} from "../../services/requst.service";
+import toast from "react-hot-toast";
 
 export const EntrepreneurProfile: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -30,15 +31,33 @@ export const EntrepreneurProfile: React.FC = () => {
         (state: { auth: IAuthProps }) => state.auth,
     );
 
-    const { data, isLoading, isError } = useGetEntrepreneurByIdQuery(id || "");
+    const {
+        data: getEntrepreneurData,
+        isLoading: entrepreneurLoading,
+        isError: entrepreneurError,
+    } = useGetEntrepreneurByIdQuery(id || "");
+
+    const [
+        createRequest,
+        { isLoading: creaetRequestLoading, isError: createRequestError },
+    ] = useCreateRequestMutation();
+
+    const {
+        data: getAllUserRequestsData,
+        isError: getRequestError,
+        isLoading: getRequestLoading,
+    } = useGetAllUserRequestsQuery({});
 
     const [requestSent, setRequestSent] = useState(false);
 
-    if (isLoading) return <div className="p-8 text-center">Loading...</div>;
+    if (entrepreneurLoading)
+        return <div className="p-8 text-center">Loading...</div>;
 
-    const entrepreneur = data?.entrepreneur as Entrepreneur | undefined;
+    const entrepreneur = getEntrepreneurData?.entrepreneur as
+        | Entrepreneur
+        | undefined;
 
-    if (!entrepreneur || isError) {
+    if (!entrepreneur || entrepreneurError) {
         return (
             <div className="text-center py-12">
                 <h2 className="text-2xl font-bold text-gray-900">
@@ -57,23 +76,25 @@ export const EntrepreneurProfile: React.FC = () => {
         currentUser?._id === entrepreneur.user?._id.toString();
     const isInvestor = currentUser?.role === "investor";
 
-    console.log(entrepreneur, currentUser);
-
     const hasRequestedCollaboration =
         requestSent ||
-        (isInvestor && id
-            ? getRequestsFromInvestor(currentUser._id).some(
-                  (req) => req.entrepreneurId === id,
+        (isInvestor && id && getAllUserRequestsData?.requests
+            ? getAllUserRequestsData.requests.some(
+                  (req: CollaborationRequest) => {
+                      const receiverId = req.receiverId?._id || req.receiverId;
+                      return receiverId.toString() === id;
+                  },
               )
             : false);
 
     const handleSendRequest = () => {
         if (isInvestor && currentUser?._id && id) {
-            createCollaborationRequest(
-                currentUser._id,
-                id,
-                `I'm interested in learning more about ${entrepreneur.startupName} and would like to explore potential investment opportunities.`,
-            );
+            createRequest({
+                message: `Investor ${currentUser.name} is interested in collaborating.`,
+                senderId: currentUser._id,
+                receiverId: id,
+                type: "DocumentAccess",
+            } as CollaborationRequest);
             setRequestSent(true);
         }
     };
@@ -94,6 +115,14 @@ export const EntrepreneurProfile: React.FC = () => {
                 return `Series ${String.fromCharCode(64 + roundNumber)}`;
         }
     };
+
+    if (createRequestError || getRequestError) {
+        return toast.error("somthing went wronge. Please try again later.");
+    }
+
+    if (creaetRequestLoading || getRequestLoading) {
+        return toast.loading("Somthing is Loading...");
+    }
 
     return (
         <div className="space-y-6 animate-fade-in">

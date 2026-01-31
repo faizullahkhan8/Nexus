@@ -28,8 +28,8 @@ export const Navbar: React.FC = () => {
         setIsMenuOpen(!isMenuOpen);
     };
 
-    const handleLogout = () => {
-        logout({});
+    const handleLogout = async () => {
+        await logout({});
         dispatch(logoutAction());
         if (!isLoading && isSuccess) {
             navigate("/login");

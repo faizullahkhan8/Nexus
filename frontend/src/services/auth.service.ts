@@ -44,6 +44,12 @@ export const authApi = createApi({
                 method: "GET",
             }),
         }),
+        getAllEntrepreneurs: builder.query({
+            query: () => ({
+                url: `/entrepreneur/get-all`,
+                method: "GET",
+            }),
+        }),
         updateEntrepreneur: builder.mutation({
             query: (updateData) => ({
                 url: `/entrepreneur/profile/update`,
@@ -76,4 +82,5 @@ export const {
     useUpdateEntrepreneurMutation,
     useGetInvestorByIdQuery,
     useUpdateInvestorMutation,
+    useGetAllEntrepreneursQuery,
 } = authApi;
