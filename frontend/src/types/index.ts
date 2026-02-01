@@ -97,6 +97,23 @@ export interface CollaborationRequest {
     message: string;
 }
 
+export interface Notification {
+    _id: string;
+    sender: User;
+    recipient: string;
+    type:
+        | "CONNECTION_REQUEST"
+        | "REQUEST_ACCEPTED"
+        | "NEW_MESSAGE"
+        | "DOCUMENT_SHARED"
+        | "MEETING_SCHEDULED"
+        | "INVESTMENT_RECEIVED";
+    message: string;
+    link?: string;
+    isRead: boolean;
+    createdAt: Date;
+}
+
 export interface Document {
     id: string;
     name: string;

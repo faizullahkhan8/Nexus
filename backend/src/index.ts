@@ -8,6 +8,7 @@ import MongoStore from "connect-mongo";
 
 import AuthRouter from "./routers/auth.router";
 import RequestRouter from "./routers/request.router";
+import NotificationRouter from "./routers/notification.router";
 import { ErrorHandler } from "./middlewares/ErrorHandler";
 
 dotenv.config();
@@ -48,6 +49,7 @@ app.use(
 
 app.use("/api/auth/", AuthRouter);
 app.use("/api/request/", RequestRouter);
+app.use("/api/notification/", NotificationRouter);
 
 app.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);

@@ -8,6 +8,7 @@ import { Badge } from "../ui/Badge";
 import { Button } from "../ui/Button";
 import { updateRequestStatus } from "../../data/collaborationRequests";
 import { formatDistanceToNow } from "date-fns";
+import { useUpdateUserRequestMutation } from "../../services/requst.service";
 
 interface CollaborationRequestCardProps {
     request: CollaborationRequest;
@@ -22,17 +23,20 @@ export const CollaborationRequestCard: React.FC<
 > = ({ request, onStatusUpdate }) => {
     const navigate = useNavigate();
 
+    const [updateRequestStatus, { isLoading, isError }] =
+        useUpdateUserRequestMutation({});
+
     if (!request) return null;
 
     const handleAccept = () => {
-        updateRequestStatus(request._id, "accepted");
+        updateRequestStatus({ requestId: request._id, status: "accepted" });
         if (onStatusUpdate) {
             onStatusUpdate(request._id, "accepted");
         }
     };
 
     const handleReject = () => {
-        updateRequestStatus(request._id, "rejected");
+        updateRequestStatus({ requestId: request._id, status: "rejected" });
         if (onStatusUpdate) {
             onStatusUpdate(request._id, "rejected");
         }
@@ -58,6 +62,9 @@ export const CollaborationRequestCard: React.FC<
                 return null;
         }
     };
+
+    if (isLoading) return <p>Loading...</p>;
+    if (isError) return <p>Somthing went wronge try agian later.</p>;
 
     return (
         <Card className="transition-all duration-300">

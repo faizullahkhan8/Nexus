@@ -107,6 +107,9 @@ export const login = asyncHandler(
                 role: user.role,
             };
 
+            user.isOnline = true;
+            await user.save({ validateModifiedOnly: true });
+
             res.status(200).json({
                 success: true,
                 message: "Login successful",
@@ -126,6 +129,14 @@ export const login = asyncHandler(
 
 export const logout = asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
+        const LocalUserModel = getLocalUserModel();
+        await LocalUserModel.updateOne(
+            {
+                _id: req.session.user?._id,
+            },
+            { isOnline: false },
+        );
+
         req.session.destroy((err) => {
             if (err) {
                 return next(
@@ -164,7 +175,7 @@ export const getMe = asyncHandler(
             const EntrepreneurModel = getLocalEntrepreneurModel();
             profile = await EntrepreneurModel.findOne({
                 user: userId,
-            }).populate("connections", "name email");
+            }).populate("connections", "name email avatarUrl _id isOnline");
             // .populate("sharedWithMeDocs")
         } else if (role === "investor") {
             const InvestorModel = getLocalInvestorModel();
