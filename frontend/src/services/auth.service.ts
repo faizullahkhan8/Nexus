@@ -70,6 +70,12 @@ export const authApi = createApi({
                 body: updateData,
             }),
         }),
+        getAllInvestor: builder.query({
+            query: () => ({
+                url: "/investor/get-all",
+                method: "GET",
+            }),
+        }),
     }),
 });
 
@@ -83,4 +89,5 @@ export const {
     useGetInvestorByIdQuery,
     useUpdateInvestorMutation,
     useGetAllEntrepreneursQuery,
+    useGetAllInvestorQuery,
 } = authApi;

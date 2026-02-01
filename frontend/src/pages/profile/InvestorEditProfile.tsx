@@ -41,7 +41,6 @@ export default function InvestorEditProfile() {
         bio: "",
         location: "",
         investmentRange: { minAmount: 0, maxAmount: 0 },
-        totalInvestments: 0,
         investmentInterests: [] as IInvestmentInterests[],
         investmentStages: [] as string[],
         portfolioCompanies: [] as IPortfolioCompanies[],
@@ -61,7 +60,7 @@ export default function InvestorEditProfile() {
                 minAmount: data.investmentRange?.minAmount ?? 0,
                 maxAmount: data.investmentRange?.maxAmount ?? 0,
             },
-            totalInvestments: data.totalInvestments ?? 0,
+
             investmentInterests: data.investmentInterests ?? [],
             investmentStages: data.investmentStages ?? [],
             portfolioCompanies: data.portfolioCompanies ?? [],
@@ -332,28 +331,6 @@ export default function InvestorEditProfile() {
                                     rows={5}
                                     className="input-focus w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-indigo-500 focus:outline-none text-slate-900 placeholder:text-slate-400 resize-none"
                                     required
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
-                                    <Award className="w-4 h-4" />
-                                    Total Investments Made
-                                </label>
-                                <Input
-                                    type="number"
-                                    placeholder="Number of companies invested in"
-                                    value={formData.totalInvestments || ""}
-                                    min="0"
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            totalInvestments: Number(
-                                                e.target.value,
-                                            ),
-                                        })
-                                    }
-                                    className="input-focus w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-indigo-500 focus:outline-none text-slate-900 placeholder:text-slate-400"
                                 />
                             </div>
                         </div>

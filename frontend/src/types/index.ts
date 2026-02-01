@@ -42,14 +42,7 @@ export interface Entrepreneur extends User {
     location: string;
     foundedYear: number;
     team: ITeamMember[];
-    user?: {
-        _id: string;
-        name: string;
-        email: string;
-        role: UserRole;
-        avatarUrl: string;
-        isOnline?: boolean;
-    };
+    user?: User;
 }
 
 export interface IPortfolioCompanies {
@@ -68,21 +61,13 @@ export interface Investor extends User {
     investmentStages: string[];
     portfolioCompanies: IPortfolioCompanies[];
     investmentCriteria: string[];
-    totalInvestments: number;
     location: string;
     investmentRange: {
         minAmount: number;
         maxAmount: number;
     };
     bio: string;
-    user: {
-        _id: string;
-        name: string;
-        email: string;
-        role: UserRole;
-        avatarUrl: string;
-        isOnline?: boolean;
-    };
+    user: User;
 }
 
 export interface Message {
@@ -103,12 +88,12 @@ export interface ChatConversation {
 
 export interface CollaborationRequest {
     _id: string;
-    senderId: string;
-    receiverId: string;
-    type: "Connection" | "DocumentAccess" | "Meeting";
+    senderId: User;
+    receiverId: User;
+    type?: "Connection" | "DocumentAccess" | "Meeting";
     documentId?: string;
-    status: "pending" | "accepted" | "rejected";
-    createdAt: string;
+    status?: "pending" | "accepted" | "rejected";
+    createdAt?: Date;
     message: string;
 }
 

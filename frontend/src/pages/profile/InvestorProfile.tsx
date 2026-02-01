@@ -82,7 +82,9 @@ export const InvestorProfile: React.FC = () => {
                             </h1>
                             <p className="text-gray-600 flex items-center justify-center sm:justify-start mt-1">
                                 <Building2 size={16} className="mr-1" />
-                                Investor • {investor.totalInvestments}{" "}
+                                Investor • {
+                                    investor.portfolioCompanies.length
+                                }{" "}
                                 investments
                             </p>
 
@@ -293,7 +295,8 @@ export const InvestorProfile: React.FC = () => {
                                         Total Investments
                                     </span>
                                     <p className="text-md font-medium text-gray-900">
-                                        {investor.totalInvestments} companies
+                                        {investor.portfolioCompanies.length}{" "}
+                                        companies
                                     </p>
                                 </div>
 

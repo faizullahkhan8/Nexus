@@ -61,8 +61,8 @@ export const getAllUserRequests = asyncHandler(
         const requests = await LocalRequestModel.find({
             $or: [{ senderId: userId }, { receiverId: userId }],
         })
-            .populate("senderId", "name email avatarUrl")
-            .populate("receiverId", "name email avatarUrl")
+            .populate("senderId", "_id name email avatarUrl role isOnline")
+            .populate("receiverId", "_id name email avatarUrl role isOnline")
             .sort({ createdAt: -1 });
 
         res.status(200).json({

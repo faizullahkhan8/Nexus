@@ -57,7 +57,6 @@ export const investorProfileSchema = yup.object({
             minAmount: yup.number().min(0),
             maxAmount: yup.number().min(0),
         }),
-        totalInvestments: yup.number().min(0),
         investmentCriteria: yup.array().of(yup.string()),
         location: yup.string(),
     }),

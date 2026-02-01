@@ -94,7 +94,7 @@ export const EntrepreneurProfile: React.FC = () => {
                 senderId: currentUser._id,
                 receiverId: id,
                 type: "DocumentAccess",
-            } as CollaborationRequest);
+            } as any);
             setRequestSent(true);
         }
     };

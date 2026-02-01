@@ -32,7 +32,7 @@ export const Navbar: React.FC = () => {
         await logout({});
         dispatch(logoutAction());
         if (!isLoading && isSuccess) {
-            navigate("/login");
+            return navigate("/login");
         }
     };
 

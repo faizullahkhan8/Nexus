@@ -357,7 +357,7 @@ export const getAllInvestors = asyncHandler(
 
         const investors = await LocalInvestorModel.find().populate(
             "user",
-            "name email role",
+            "name email role isOnline avatarUrl",
         );
 
         if (!investors || investors.length === 0) {

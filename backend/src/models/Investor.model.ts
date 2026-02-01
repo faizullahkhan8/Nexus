@@ -21,7 +21,6 @@ export interface IInvestor extends Document {
         minAmount: number;
         maxAmount: number;
     };
-    totalInvestments: number;
     investmentCriteria: string[];
     location: string;
     profileViews: number;
@@ -64,10 +63,6 @@ export const InvestorSchema = new Schema<IInvestor>(
                 required: true,
                 default: 0,
             },
-        },
-        totalInvestments: {
-            type: Number,
-            default: 0,
         },
         investmentCriteria: [
             {
