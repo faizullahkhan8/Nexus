@@ -54,6 +54,7 @@ export const signup = asyncHandler(
                     portfolioCompanies: [],
                     investmentRange: { minAmount: 0, maxAmount: 0 },
                     location: "Not Specified",
+                    bio: "Not Specified",
                 });
             }
 

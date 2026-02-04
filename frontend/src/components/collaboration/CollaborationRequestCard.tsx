@@ -74,19 +74,21 @@ export const CollaborationRequestCard: React.FC<
                         <Avatar
                             src={
                                 request.senderId?.avatarUrl ||
-                                `https://dummyjson.com/image/150x150/008080/ffffff?text=${request.senderId.name.split(" ")[0][0]}+${request.senderId.name.split(" ")[request.senderId.name.split(" ").length - 1][0]}`
+                                `https://dummyjson.com/image/150x150/008080/ffffff?text=${request.senderId?.name.split(" ")[0][0]}+${request.senderId?.name.split(" ")[request.senderId?.name.split(" ").length - 1][0]}`
                             }
-                            alt={request.senderId.name}
+                            alt={request.senderId?.name}
                             size="md"
                             status={
-                                request.senderId.isOnline ? "online" : "offline"
+                                request.senderId?.isOnline
+                                    ? "online"
+                                    : "offline"
                             }
                             className="mr-3"
                         />
 
                         <div>
                             <h3 className="text-md font-semibold text-gray-900">
-                                {request.senderId.name}
+                                {request.senderId?.name}
                             </h3>
                             <p className="text-sm text-gray-500">
                                 {formatDistanceToNow(

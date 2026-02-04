@@ -1,14 +1,19 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
-import { ChatConversation } from "../../types";
+import { ChatConversation, Message, User } from "../../types";
 import { Avatar } from "../ui/Avatar";
 import { Badge } from "../ui/Badge";
-import { findUserById } from "../../data/users";
-import { useAuth } from "../../context/AuthContext";
+import { useSelector } from "react-redux";
+import { IAuthProps } from "../../features/auth.slice";
 
 interface ChatUserListProps {
-    conversations: ChatConversation[];
+    conversations: Array<
+        Omit<ChatConversation, "participants"> & {
+            otherUser: User;
+            lastMessage?: Message;
+        }
+    >;
 }
 
 export const ChatUserList: React.FC<ChatUserListProps> = ({
@@ -16,9 +21,9 @@ export const ChatUserList: React.FC<ChatUserListProps> = ({
 }) => {
     const navigate = useNavigate();
     const { userId: activeUserId } = useParams<{ userId: string }>();
-    const { user: currentUser } = useAuth();
-
-    if (!currentUser) return null;
+    const currentUser = useSelector(
+        (state: { auth: IAuthProps }) => state.auth,
+    );
 
     const handleSelectUser = (userId: string) => {
         navigate(`/chat/${userId}`);
@@ -34,19 +39,14 @@ export const ChatUserList: React.FC<ChatUserListProps> = ({
                 <div className="space-y-1">
                     {conversations.length > 0 ? (
                         conversations.map((conversation) => {
-                            // Get the other participant (not the current user)
-                            const otherParticipantId =
-                                conversation.participants.find(
-                                    (id) => id !== currentUser.id,
-                                );
-                            if (!otherParticipantId) return null;
-
-                            const otherUser = findUserById(otherParticipantId);
-                            if (!otherUser) return null;
-
+                            const otherUser = conversation.otherUser;
                             const lastMessage = conversation.lastMessage;
                             const isActive =
-                                activeUserId === otherParticipantId;
+                                activeUserId === otherUser._id;
+                            const lastMessageSenderId =
+                                lastMessage && typeof lastMessage.senderId === "string"
+                                    ? lastMessage.senderId
+                                    : lastMessage?.senderId?._id;
 
                             return (
                                 <div
@@ -56,9 +56,7 @@ export const ChatUserList: React.FC<ChatUserListProps> = ({
                                             ? "bg-primary-50 border-l-4 border-primary-600"
                                             : "hover:bg-gray-50 border-l-4 border-transparent"
                                     }`}
-                                    onClick={() =>
-                                        handleSelectUser(otherUser.id)
-                                    }
+                                    onClick={() => handleSelectUser(otherUser._id)}
                                 >
                                     <Avatar
                                         src={otherUser.avatarUrl}
@@ -82,7 +80,9 @@ export const ChatUserList: React.FC<ChatUserListProps> = ({
                                                 <span className="text-xs text-gray-500">
                                                     {formatDistanceToNow(
                                                         new Date(
-                                                            lastMessage.timestamp,
+                                                            lastMessage.timestamp ||
+                                                                lastMessage.createdAt ||
+                                                                "",
                                                         ),
                                                         { addSuffix: false },
                                                     )}
@@ -93,8 +93,8 @@ export const ChatUserList: React.FC<ChatUserListProps> = ({
                                         <div className="flex justify-between items-center mt-1">
                                             {lastMessage && (
                                                 <p className="text-xs text-gray-600 truncate">
-                                                    {lastMessage.senderId ===
-                                                    currentUser.id
+                                                    {lastMessageSenderId ===
+                                                    currentUser._id
                                                         ? "You: "
                                                         : ""}
                                                     {lastMessage.content}
@@ -103,8 +103,8 @@ export const ChatUserList: React.FC<ChatUserListProps> = ({
 
                                             {lastMessage &&
                                                 !lastMessage.isRead &&
-                                                lastMessage.senderId !==
-                                                    currentUser.id && (
+                                                lastMessageSenderId !==
+                                                    currentUser._id && (
                                                     <Badge
                                                         variant="primary"
                                                         size="sm"

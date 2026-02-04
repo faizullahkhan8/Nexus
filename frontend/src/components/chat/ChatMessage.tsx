@@ -1,21 +1,20 @@
 import React from "react";
 import { formatDistanceToNow } from "date-fns";
-import { Message } from "../../types";
+import { Message, User } from "../../types";
 import { Avatar } from "../ui/Avatar";
-import { findUserById } from "../../data/users";
 
 interface ChatMessageProps {
     message: Message;
+    sender: User;
     isCurrentUser: boolean;
 }
 
 export const ChatMessage: React.FC<ChatMessageProps> = ({
     message,
+    sender,
     isCurrentUser,
 }) => {
-    const user = findUserById(message.senderId);
-
-    if (!user) return null;
+    if (!sender) return null;
 
     return (
         <div
@@ -23,8 +22,8 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
         >
             {!isCurrentUser && (
                 <Avatar
-                    src={user.avatarUrl}
-                    alt={user.name}
+                    src={sender.avatarUrl}
+                    alt={sender.name}
                     size="sm"
                     className="mr-2 self-end"
                 />
@@ -44,16 +43,19 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                 </div>
 
                 <span className="text-xs text-gray-500 mt-1">
-                    {formatDistanceToNow(new Date(message.timestamp), {
-                        addSuffix: true,
-                    })}
+                    {formatDistanceToNow(
+                        new Date(message.timestamp || message.createdAt || ""),
+                        {
+                            addSuffix: true,
+                        },
+                    )}
                 </span>
             </div>
 
             {isCurrentUser && (
                 <Avatar
-                    src={user.avatarUrl}
-                    alt={user.name}
+                    src={sender.avatarUrl}
+                    alt={sender.name}
                     size="sm"
                     className="ml-2 self-end"
                 />

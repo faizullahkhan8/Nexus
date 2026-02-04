@@ -71,11 +71,13 @@ export interface Investor extends User {
 }
 
 export interface Message {
-    id: string;
-    senderId: string;
-    receiverId: string;
+    id?: string;
+    _id?: string;
+    senderId: string | User;
+    receiverId: string | User;
     content: string;
-    timestamp: string;
+    timestamp?: string;
+    createdAt?: string;
     isRead: boolean;
 }
 

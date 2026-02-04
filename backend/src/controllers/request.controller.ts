@@ -1,12 +1,14 @@
 import { NextFunction, Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import {
+    getLocalConversationModel,
     getLocalEntrepreneurModel,
     getLocalNotificationModel,
     getLocalRequestModel,
 } from "../db/LocalDb";
 import ErrorResponse from "../utils/ErrorResponse";
 import { createNotificationUtil } from "../utils/Notification";
+import { IEntrepreneur } from "../models/Entrepreneur.model";
 
 export const createRequest = asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
@@ -93,6 +95,7 @@ export const updateRequestStatus = asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
         const LocalRequestModel = getLocalRequestModel();
         const LocalEntrepreneurModel = getLocalEntrepreneurModel();
+        const LocalConversationModel = getLocalConversationModel();
 
         const { requestId, status } = req.body;
         const userId = req.session.user?._id;
@@ -119,10 +122,27 @@ export const updateRequestStatus = asyncHandler(
         request.status = status;
         await request.save();
 
+        let entrepreneur: IEntrepreneur;
+
         if (status === "accepted") {
-            await LocalEntrepreneurModel.findOneAndUpdate(
+            entrepreneur = (await LocalEntrepreneurModel.findOneAndUpdate(
                 { user: userId },
                 { $addToSet: { connections: request.senderId } },
+            )) as IEntrepreneur;
+
+            await LocalConversationModel.create({
+                participants: [request.receiverId, request.senderId],
+            });
+
+            await createNotificationUtil(
+                {
+                    sender: req.session.user?._id,
+                    recipient: request.senderId,
+                    message: `${entrepreneur.startupName} accepted your connection request`,
+                    type: "REQUEST_ACCEPTED",
+                    link: request._id,
+                },
+                getLocalNotificationModel,
             );
         }
 

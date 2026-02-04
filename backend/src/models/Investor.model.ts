@@ -1,7 +1,7 @@
 import { Document, Schema, Types } from "mongoose";
 
 export interface IPortfolioCompanies {
-    name: string;
+    _id: Types.ObjectId;
     date: string;
     amountInvested: number;
 }
@@ -16,7 +16,7 @@ export interface IInvestor extends Document {
     investmentInterests: IInvestmentInterests[];
     investmentStages: string[];
     portfolioCompanies: IPortfolioCompanies[];
-    bio: string;
+    bio?: string;
     investmentRange: {
         minAmount: number;
         maxAmount: number;
@@ -47,7 +47,7 @@ export const InvestorSchema = new Schema<IInvestor>(
         ],
         portfolioCompanies: [
             {
-                name: { type: String, required: true },
+                _id: { type: Schema.Types.ObjectId, ref: "Entrepreneurs" },
                 date: { type: String, required: true },
                 amountInvested: { type: Number, required: true },
             },

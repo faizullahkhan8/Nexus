@@ -6,8 +6,8 @@ import { useSelector } from "react-redux";
 import { IAuthProps } from "../../features/auth.slice";
 
 export const DashboardLayout: React.FC = () => {
-    const isAuthenticated = useSelector(
-        (state: { auth: IAuthProps }) => state.auth,
+    const isAuthenticated = useSelector((state: { auth: IAuthProps }) =>
+        Boolean(state.auth._id),
     );
 
     const isLoading = false;
