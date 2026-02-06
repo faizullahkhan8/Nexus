@@ -41,10 +41,10 @@ export const ChatUserList: React.FC<ChatUserListProps> = ({
                         conversations.map((conversation) => {
                             const otherUser = conversation.otherUser;
                             const lastMessage = conversation.lastMessage;
-                            const isActive =
-                                activeUserId === otherUser._id;
+                            const isActive = activeUserId === otherUser._id;
                             const lastMessageSenderId =
-                                lastMessage && typeof lastMessage.senderId === "string"
+                                lastMessage &&
+                                typeof lastMessage.senderId === "string"
                                     ? lastMessage.senderId
                                     : lastMessage?.senderId?._id;
 
@@ -56,10 +56,15 @@ export const ChatUserList: React.FC<ChatUserListProps> = ({
                                             ? "bg-primary-50 border-l-4 border-primary-600"
                                             : "hover:bg-gray-50 border-l-4 border-transparent"
                                     }`}
-                                    onClick={() => handleSelectUser(otherUser._id)}
+                                    onClick={() =>
+                                        handleSelectUser(otherUser._id)
+                                    }
                                 >
                                     <Avatar
-                                        src={otherUser.avatarUrl}
+                                        src={
+                                            otherUser.avatarUrl ||
+                                            `https://dummyjson.com/image/150x150/008080/ffffff?text=${otherUser.name.split(" ")[0][0]}+${otherUser.name.split(" ")[otherUser.name.split(" ").length - 1][0]}`
+                                        }
                                         alt={otherUser.name}
                                         size="md"
                                         status={

@@ -18,14 +18,6 @@ import { IAuthProps } from "../../features/auth.slice";
 export const SettingsPage: React.FC = () => {
     const user = useSelector((state: { auth: IAuthProps }) => state.auth);
 
-    const getInitials = (name: string) => {
-        const parts = name.split(" ");
-        if (parts.length >= 2) {
-            return `${parts[0][0]}${parts[parts.length - 1][0]}`;
-        }
-        return parts[0][0] || "?";
-    };
-
     return (
         <div className="space-y-6 animate-fade-in">
             <div>
@@ -79,7 +71,7 @@ export const SettingsPage: React.FC = () => {
                                 <Avatar
                                     src={
                                         user?.avatarUrl ||
-                                        `https://dummyjson.com/image/150x150/008080/ffffff?text=${getInitials(user.name)}`
+                                        `https://dummyjson.com/image/150x150/008080/ffffff?text=${user.name.split(" ")[0][0]}+${user.name.split(" ")[user.name.split(" ").length - 1][0]}`
                                     }
                                     alt={user.name}
                                     size="xl"
@@ -117,18 +109,6 @@ export const SettingsPage: React.FC = () => {
                                     label="Location"
                                     defaultValue="San Francisco, CA"
                                 />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Bio
-                                </label>
-                                <textarea
-                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-                                    rows={4}
-                                    defaultValue={user?.bio}
-                                    placeholder="Your bio goes here..."
-                                ></textarea>
                             </div>
 
                             <div className="flex justify-end gap-3">

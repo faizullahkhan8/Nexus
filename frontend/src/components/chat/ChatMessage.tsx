@@ -22,7 +22,10 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
         >
             {!isCurrentUser && (
                 <Avatar
-                    src={sender.avatarUrl}
+                    src={
+                        sender.avatarUrl ||
+                        `https://dummyjson.com/image/150x150/008080/ffffff?text=${sender.name.split(" ")[0][0]}+${sender.name.split(" ")[sender.name.split(" ").length - 1][0]}`
+                    }
                     alt={sender.name}
                     size="sm"
                     className="mr-2 self-end"
@@ -54,7 +57,10 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
 
             {isCurrentUser && (
                 <Avatar
-                    src={sender.avatarUrl}
+                    src={
+                        sender.avatarUrl ||
+                        `https://dummyjson.com/image/150x150/008080/ffffff?text=${sender.name.split(" ")[0][0]}+${sender.name.split(" ")[sender.name.split(" ").length - 1][0]}`
+                    }
                     alt={sender.name}
                     size="sm"
                     className="ml-2 self-end"

@@ -4,6 +4,7 @@ import { useGetAllUserRequestsQuery } from "../../services/requst.service";
 import { useSelector } from "react-redux";
 import { IAuthProps } from "../../features/auth.slice";
 import { CollaborationRequest } from "../../types";
+import { MessageCircle } from "lucide-react";
 // import { MessageCircle } from 'lucide-react';
 
 export const MessagesPage: React.FC = () => {
@@ -42,7 +43,7 @@ export const MessagesPage: React.FC = () => {
             ) : (
                 <div className="h-full flex flex-col items-center justify-center p-8">
                     <div className="bg-gray-100 p-6 rounded-full mb-4">
-                        {/* <MessageCircle size={32} className="text-gray-400" /> */}
+                        <MessageCircle size={32} className="text-gray-400" />
                     </div>
                     <h2 className="text-xl font-medium text-gray-900">
                         No messages yet

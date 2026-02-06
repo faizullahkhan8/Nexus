@@ -127,7 +127,10 @@ export const ChatPage: React.FC = () => {
                         <div className="border-b border-gray-200 p-4 flex justify-between items-center">
                             <div className="flex items-center">
                                 <Avatar
-                                    src={chatPartner.avatarUrl}
+                                    src={
+                                        chatPartner.avatarUrl ||
+                                        `https://dummyjson.com/image/150x150/008080/ffffff?text=${chatPartner.name.split(" ")[0][0]}+${chatPartner.name.split(" ")[chatPartner.name.split(" ").length - 1][0]}`
+                                    }
                                     alt={chatPartner.name}
                                     size="md"
                                     status={
@@ -257,9 +260,7 @@ export const ChatPage: React.FC = () => {
                                 <Button
                                     type="submit"
                                     size="sm"
-                                    disabled={
-                                        !newMessage.trim() || isSending
-                                    }
+                                    disabled={!newMessage.trim() || isSending}
                                     className="rounded-full p-2 w-10 h-10 flex items-center justify-center"
                                     aria-label="Send message"
                                 >

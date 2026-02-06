@@ -31,9 +31,7 @@ export const messageApi = apiSlice.injectEndpoints({
                 url: `/message/${messageId}`,
                 method: "GET",
             }),
-            providesTags: (result, error, id) => [
-                { type: "Message", id },
-            ],
+            providesTags: (_, __, id) => [{ type: "Message", id }],
         }),
         markMessageRead: builder.mutation({
             query: (messageId: string) => ({
