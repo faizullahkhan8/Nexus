@@ -15,6 +15,7 @@ import {
     useGetMessagesBetweenUsersQuery,
 } from "../../services/message.service";
 import { useGetAllUserRequestsQuery } from "../../services/requst.service";
+import { socket } from "../../socket";
 
 export const ChatPage: React.FC = () => {
     const { userId } = useParams<{ userId: string }>();
@@ -22,6 +23,7 @@ export const ChatPage: React.FC = () => {
         (state: { auth: IAuthProps }) => state.auth,
     );
     const [newMessage, setNewMessage] = useState("");
+    const [messages, setMessages] = useState<Message[]>([]);
     const messagesEndRef = useRef<null | HTMLDivElement>(null);
 
     const { data: requestsData } = useGetAllUserRequestsQuery({});
@@ -51,19 +53,21 @@ export const ChatPage: React.FC = () => {
             });
     }, [requestsData, currentUser]);
 
-    const messages: Message[] = useMemo(() => {
-        if (!messagesData?.data?.length) return [];
+    useEffect(() => {
+        if (!messagesData?.data?.length) return;
 
-        return messagesData.data.map((message: any) => ({
-            _id: message._id,
-            id: message._id,
-            senderId: message.senderId,
-            receiverId: message.receiverId,
-            content: message.content,
-            timestamp: message.createdAt,
-            createdAt: message.createdAt,
-            isRead: message.isRead,
-        }));
+        setMessages(
+            messagesData.data.map((message: any) => ({
+                _id: message._id,
+                id: message._id,
+                senderId: message.senderId,
+                receiverId: message.receiverId,
+                content: message.content,
+                timestamp: message.createdAt,
+                createdAt: message.createdAt,
+                isRead: message.isRead,
+            }))
+        );
     }, [messagesData]);
 
     const chatPartner: User | null = useMemo(() => {
@@ -109,6 +113,18 @@ export const ChatPage: React.FC = () => {
 
         setNewMessage("");
     };
+
+    useEffect(() => {
+        if (!currentUser?._id) return;
+
+        socket.on("new_message", (message: Message) => {
+            setMessages((prevMessages) => [...prevMessages, message]);
+        });
+
+        return () => {
+            socket.off("new_message");
+        };
+    }, [currentUser?._id]);
 
     if (!currentUser?._id) return null;
 
@@ -191,7 +207,7 @@ export const ChatPage: React.FC = () => {
                                         const sender =
                                             typeof message.senderId === "string"
                                                 ? message.senderId ===
-                                                  currentUser._id
+                                                    currentUser._id
                                                     ? (currentUser as User)
                                                     : chatPartner
                                                 : (message.senderId as User);

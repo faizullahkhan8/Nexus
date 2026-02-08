@@ -59,6 +59,8 @@ export const createMessage = asyncHandler(
             getLocalNotificationModel,
         );
 
+        io.to(`user:${receiverId}`).emit("new_message", message);
+
         res.status(201).json({
             success: true,
             data: message,
