@@ -1,4 +1,5 @@
 import { Types } from "mongoose";
+import { io } from "../index";
 
 interface INotificationParams {
     recipient: string | Types.ObjectId;
@@ -30,7 +31,27 @@ export const createNotificationUtil = async (
             link: params.link,
         });
 
-        return notification;
+        const populatedNotification = await LocalNotificationModel.findById(
+            notification._id,
+        ).populate("sender", "_id name email avatarUrl role isOnline createdAt");
+
+        io.to(`user:${params.recipient}`).emit(
+            "notification",
+            populatedNotification,
+            (ack: any) => {
+                if (ack) {
+                    console.log(
+                        `Notification delivered to user:${params.recipient}`,
+                    );
+                } else {
+                    console.log(
+                        `User user:${params.recipient} is offline. Notification saved to DB.`,
+                    );
+                }
+            },
+        );
+
+        return populatedNotification;
     } catch (error) {
         console.error("Notification Utility Error:", error);
     }

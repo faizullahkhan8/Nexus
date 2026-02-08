@@ -17,10 +17,13 @@ import {
     useMarkNotificationAsAllReadMutation,
     useMarkNotificationReadMutation,
 } from "../../services/notification.service";
-import { Notification as INotifications } from "../../types";
+import { Notification as INotifications, User } from "../../types";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { socket } from "../../socket";
 
 export const NotificationsPage: React.FC = () => {
+    const auth = useSelector((state: { auth: User }) => Boolean(state.auth));
     const [notifications, setNotifications] = useState<INotifications[]>([]);
     const {
         data: notificationData,
@@ -48,6 +51,24 @@ export const NotificationsPage: React.FC = () => {
     useEffect(() => {
         if (notificationData) setNotifications(notificationData.data);
     }, [notificationData]);
+
+    const notificationHandler = (notification: any, ack: any) => {
+        console.log("New Notification received:", notification);
+        setNotifications((prev) => [notification, ...prev]);
+        if (ack) ack(true);
+    };
+
+    useEffect(() => {
+        if (!auth) return;
+
+        if (!socket.connected) socket.connect();
+
+        socket.on("notification", notificationHandler);
+
+        return () => {
+            socket.off("notification", notificationHandler);
+        };
+    }, [auth]);
 
     const getNotificationIcon = ({ type }: INotifications) => {
         switch (type) {

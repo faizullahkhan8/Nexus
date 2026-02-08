@@ -7,6 +7,7 @@ import {
 } from "../db/LocalDb";
 import ErrorResponse from "../utils/ErrorResponse";
 import { createNotificationUtil } from "../utils/Notification";
+import { io } from "..";
 
 export const createMessage = asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {

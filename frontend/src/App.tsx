@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
     BrowserRouter as Router,
     Routes,
@@ -27,8 +27,24 @@ import { SettingsPage } from "./pages/settings/SettingsPage";
 import { HelpPage } from "./pages/help/HelpPage";
 import { DealsPage } from "./pages/deals/DealsPage";
 import { ChatPage } from "./pages/chat/ChatPage";
+import { socket } from "./socket";
+import { useSelector } from "react-redux";
+import { User } from "./types";
 
 function App() {
+    const auth = useSelector((state: { auth: User | null }) =>
+        Boolean(state.auth),
+    );
+
+    useEffect(() => {
+        if (auth) {
+            if (!socket.connected) {
+                socket.connect();
+            }
+        } else {
+            socket.disconnect();
+        }
+    }, [auth]);
     return (
         <AuthProvider>
             <Router>
