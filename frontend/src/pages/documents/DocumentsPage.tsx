@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FileText, Upload, Download, Trash2, Share2 } from 'lucide-react';
 import { Card, CardHeader, CardBody } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
+import AddDocumentDialog from '../../components/entrepreneur/AddDocumentDialog';
+import { useGetDocumentsQuery } from '../../services/document.service';
+import { Document } from '../../types';
+import { Link } from 'react-router-dom';
 
 const documents = [
   {
@@ -40,19 +44,32 @@ const documents = [
 ];
 
 export const DocumentsPage: React.FC = () => {
+  const [open, setOpen] = useState(false);
+
+  const { data, isLoading, error } = useGetDocumentsQuery();
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    console.log(error);
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
+      {open && <AddDocumentDialog onClose={() => setOpen(false)} />}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Documents</h1>
           <p className="text-gray-600">Manage your startup's important files</p>
         </div>
-        
-        <Button leftIcon={<Upload size={18} />}>
+
+        <Button onClick={() => setOpen(true)} variant="primary" size="sm" leftIcon={<Upload size={18} />}>
           Upload Document
         </Button>
       </div>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Storage info */}
         <Card className="lg:col-span-1">
@@ -73,7 +90,7 @@ export const DocumentsPage: React.FC = () => {
                 <span className="font-medium text-gray-900">7.5 GB</span>
               </div>
             </div>
-            
+
             <div className="pt-4 border-t border-gray-200">
               <h3 className="text-sm font-medium text-gray-900 mb-2">Quick Access</h3>
               <div className="space-y-2">
@@ -93,7 +110,7 @@ export const DocumentsPage: React.FC = () => {
             </div>
           </CardBody>
         </Card>
-        
+
         {/* Document list */}
         <div className="lg:col-span-3">
           <Card>
@@ -110,42 +127,44 @@ export const DocumentsPage: React.FC = () => {
             </CardHeader>
             <CardBody>
               <div className="space-y-2">
-                {documents.map(doc => (
+                {data.documents.map((doc: Document) => (
                   <div
-                    key={doc.id}
+                    key={doc._id}
                     className="flex items-center p-4 hover:bg-gray-50 rounded-lg transition-colors duration-200"
                   >
                     <div className="p-2 bg-primary-50 rounded-lg mr-4">
                       <FileText size={24} className="text-primary-600" />
                     </div>
-                    
+
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <h3 className="text-sm font-medium text-gray-900 truncate">
-                          {doc.name}
+                          {doc.fileName}
                         </h3>
-                        {doc.shared && (
+                        {doc.visibility === "public" && (
                           <Badge variant="secondary" size="sm">Shared</Badge>
                         )}
                       </div>
-                      
+
                       <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
-                        <span>{doc.type}</span>
-                        <span>{doc.size}</span>
-                        <span>Modified {doc.lastModified}</span>
+                        <span>{doc.format}</span>
+                        <span>{doc.fileSize}</span>
+                        <span>Modified {new Date(doc.updatedAt).toLocaleDateString()}</span>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center gap-2 ml-4">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="p-2"
-                        aria-label="Download"
-                      >
-                        <Download size={18} />
-                      </Button>
-                      
+                      <Link to={doc.cloudinaryUrl} target="_blank">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="p-2"
+                          aria-label="Download"
+                        >
+                          <Download size={18} />
+                        </Button>
+                      </Link>
+
                       <Button
                         variant="ghost"
                         size="sm"
@@ -154,7 +173,7 @@ export const DocumentsPage: React.FC = () => {
                       >
                         <Share2 size={18} />
                       </Button>
-                      
+
                       <Button
                         variant="ghost"
                         size="sm"

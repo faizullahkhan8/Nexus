@@ -117,14 +117,18 @@ export interface Notification {
 }
 
 export interface Document {
-    id: string;
-    name: string;
-    type: string;
-    size: string;
-    lastModified: string;
-    shared: boolean;
-    url: string;
-    ownerId: string;
+    _id: string;
+    originalName: string;
+    fileName: string;
+    format: "pdf" | "doc" | "docx";
+    mimeType: string;
+    fileSize: number;
+    cloudinaryUrl: string;
+    cloudinaryPublicId: string;
+    uploadedBy: User;
+    visibility: "private" | "public";
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export interface AuthContextType {

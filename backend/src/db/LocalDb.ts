@@ -15,6 +15,7 @@ import {
     IConversation,
 } from "../models/Conversation.model";
 import { IMessage, messageSchema } from "../models/message.model";
+import { IDocument, DocumentSchema } from "../models/Document.model";
 
 let LocalDbConnection: Connection;
 let LocalUserModel: Model<IUserProps>;
@@ -24,6 +25,7 @@ let LocalRequestModel: Model<IRequest>;
 let LocalNotificationModel: Model<INotification>;
 let LocalConversationModel: Model<IConversation>;
 let LocalMessageModel: Model<IMessage>;
+let LocalDocumentModel: Model<IDocument>;
 
 export const connectLocalDb = async () => {
     LocalDbConnection = await createConnection(
@@ -67,6 +69,11 @@ export const connectLocalDb = async () => {
             "Messages",
             messageSchema,
         );
+
+        LocalDocumentModel = LocalDbConnection.model<IDocument>(
+            "Documents",
+            DocumentSchema,
+        );
     }
 };
 
@@ -77,3 +84,4 @@ export const getLocalRequestModel = () => LocalRequestModel || null;
 export const getLocalNotificationModel = () => LocalNotificationModel || null;
 export const getLocalConversationModel = () => LocalConversationModel || null;
 export const getLocalMessageModel = () => LocalMessageModel || null;
+export const getLocalDocumentModel = () => LocalDocumentModel || null;
