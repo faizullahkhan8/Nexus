@@ -1,52 +1,27 @@
 import React, { useState } from 'react';
-import { FileText, Upload, Download, Trash2, Share2 } from 'lucide-react';
+import { FileText, Upload, Download, Trash2, Share2, Eye, Loader2 } from 'lucide-react';
 import { Card, CardHeader, CardBody } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import AddDocumentDialog from '../../components/entrepreneur/AddDocumentDialog';
-import { useGetDocumentsQuery } from '../../services/document.service';
+import { useDeleteDocumentMutation, useGetDocumentsQuery } from '../../services/document.service';
 import { Document } from '../../types';
-import { Link } from 'react-router-dom';
-
-const documents = [
-  {
-    id: 1,
-    name: 'Pitch Deck 2024.pdf',
-    type: 'PDF',
-    size: '2.4 MB',
-    lastModified: '2024-02-15',
-    shared: true
-  },
-  {
-    id: 2,
-    name: 'Financial Projections.xlsx',
-    type: 'Spreadsheet',
-    size: '1.8 MB',
-    lastModified: '2024-02-10',
-    shared: false
-  },
-  {
-    id: 3,
-    name: 'Business Plan.docx',
-    type: 'Document',
-    size: '3.2 MB',
-    lastModified: '2024-02-05',
-    shared: true
-  },
-  {
-    id: 4,
-    name: 'Market Research.pdf',
-    type: 'PDF',
-    size: '5.1 MB',
-    lastModified: '2024-01-28',
-    shared: false
-  }
-];
+import DocumentPreviewer from '../../components/ui/PDFViewer';
 
 export const DocumentsPage: React.FC = () => {
   const [open, setOpen] = useState(false);
+  const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
 
   const { data, isLoading, error } = useGetDocumentsQuery();
+  const [deleteDocument, { isLoading: isDeleting }] = useDeleteDocumentMutation();
+
+  const handleDeleteDocument = async (doc: Document) => {
+    try {
+      await deleteDocument(doc._id);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -56,9 +31,14 @@ export const DocumentsPage: React.FC = () => {
     console.log(error);
   }
 
+  const usedStorage = data?.documents.reduce((total: number, doc: Document) => total + doc.fileSize, 0) / 1024 / 1024;
+  const availableStorage = 10;
+
+
   return (
     <div className="space-y-6 animate-fade-in">
       {open && <AddDocumentDialog onClose={() => setOpen(false)} />}
+      {selectedDoc && <DocumentPreviewer onClose={() => setSelectedDoc(null)} doc={selectedDoc} isOpen={!!selectedDoc} />}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Documents</h1>
@@ -80,14 +60,14 @@ export const DocumentsPage: React.FC = () => {
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Used</span>
-                <span className="font-medium text-gray-900">12.5 GB</span>
+                <span className="font-medium text-gray-900">{usedStorage.toFixed(2)} MB</span>
               </div>
               <div className="h-2 bg-gray-200 rounded-full">
-                <div className="h-2 bg-primary-600 rounded-full" style={{ width: '65%' }}></div>
+                <div className="h-2 bg-primary-600 rounded-full" style={{ width: `${(usedStorage / availableStorage) * 100}%` }}></div>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Available</span>
-                <span className="font-medium text-gray-900">7.5 GB</span>
+                <span className="font-medium text-gray-900">{availableStorage.toFixed(2)} MB</span>
               </div>
             </div>
 
@@ -154,16 +134,17 @@ export const DocumentsPage: React.FC = () => {
                     </div>
 
                     <div className="flex items-center gap-2 ml-4">
-                      <Link to={doc.cloudinaryUrl} target="_blank">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="p-2"
-                          aria-label="Download"
-                        >
-                          <Download size={18} />
-                        </Button>
-                      </Link>
+
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="p-2"
+                        aria-label="Download"
+                        onClick={() => setSelectedDoc(doc)}
+                      >
+                        <Eye size={18} />
+                      </Button>
+
 
                       <Button
                         variant="ghost"
@@ -179,8 +160,9 @@ export const DocumentsPage: React.FC = () => {
                         size="sm"
                         className="p-2 text-error-600 hover:text-error-700"
                         aria-label="Delete"
+                        onClick={() => handleDeleteDocument(doc)}
                       >
-                        <Trash2 size={18} />
+                        {isDeleting && doc._id ? <Loader2 className="animate-spin" size={18} /> : <Trash2 size={18} />}
                       </Button>
                     </div>
                   </div>

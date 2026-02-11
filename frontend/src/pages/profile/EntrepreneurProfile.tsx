@@ -10,12 +10,14 @@ import {
     FileText,
     DollarSign,
     Send,
+    Eye,
+    Download,
 } from "lucide-react";
 import { Avatar } from "../../components/ui/Avatar";
 import { Button } from "../../components/ui/Button";
 import { Card, CardBody, CardHeader } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
-import { CollaborationRequest, Entrepreneur } from "../../types";
+import { CollaborationRequest, Document, Entrepreneur } from "../../types";
 import { useSelector } from "react-redux";
 import { useGetEntrepreneurByIdQuery } from "../../services/auth.service";
 import { IAuthProps } from "../../features/auth.slice";
@@ -24,12 +26,16 @@ import {
     useGetAllUserRequestsQuery,
 } from "../../services/requst.service";
 import toast from "react-hot-toast";
+import { useGetDocumentsQuery } from "../../services/document.service";
+import DocumentPreviewer from "../../components/ui/PDFViewer";
 
 export const EntrepreneurProfile: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const currentUser = useSelector(
         (state: { auth: IAuthProps }) => state.auth,
     );
+
+    const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
 
     const {
         data: getEntrepreneurData,
@@ -47,6 +53,12 @@ export const EntrepreneurProfile: React.FC = () => {
         isError: getRequestError,
         isLoading: getRequestLoading,
     } = useGetAllUserRequestsQuery({});
+
+    const {
+        data: getDocumentsData,
+        isLoading: getDocumentsLoading,
+        isError: getDocumentsError,
+    } = useGetDocumentsQuery();
 
     const [requestSent, setRequestSent] = useState(false);
 
@@ -80,11 +92,11 @@ export const EntrepreneurProfile: React.FC = () => {
         requestSent ||
         (isInvestor && id && getAllUserRequestsData?.requests
             ? getAllUserRequestsData.requests.some(
-                  (req: CollaborationRequest) => {
-                      const receiverId = req.receiverId?._id || req.receiverId;
-                      return receiverId.toString() === id;
-                  },
-              )
+                (req: CollaborationRequest) => {
+                    const receiverId = req.receiverId?._id || req.receiverId;
+                    return receiverId.toString() === id;
+                },
+            )
             : false);
 
     const handleSendRequest = () => {
@@ -116,16 +128,17 @@ export const EntrepreneurProfile: React.FC = () => {
         }
     };
 
-    if (createRequestError || getRequestError) {
+    if (createRequestError || getRequestError || getDocumentsError) {
         return toast.error("somthing went wronge. Please try again later.");
     }
 
-    if (creaetRequestLoading || getRequestLoading) {
+    if (creaetRequestLoading || getRequestLoading || getDocumentsLoading) {
         return toast.loading("Somthing is Loading...");
     }
 
     return (
         <div className="space-y-6 animate-fade-in">
+            <DocumentPreviewer doc={selectedDoc} isOpen={!!selectedDoc} onClose={() => setSelectedDoc(null)} />
             {/* Profile header */}
             <Card>
                 <CardBody className="sm:flex sm:items-start sm:justify-between p-6">
@@ -342,19 +355,19 @@ export const EntrepreneurProfile: React.FC = () => {
                                         />
                                         <p className="text-lg font-semibold text-gray-900">
                                             {entrepreneur.fundingRound.length >
-                                            0
+                                                0
                                                 ? entrepreneur.fundingRound.map(
-                                                      (round, index) =>
-                                                          round.isCurrent && (
-                                                              <span key={index}>
-                                                                  {round.amount.toLocaleString()}{" "}
-                                                                  -{" "}
-                                                                  {getRoundLabel(
-                                                                      round.round,
-                                                                  )}
-                                                              </span>
-                                                          ),
-                                                  )
+                                                    (round, index) =>
+                                                        round.isCurrent && (
+                                                            <span key={index}>
+                                                                {round.amount.toLocaleString()}{" "}
+                                                                -{" "}
+                                                                {getRoundLabel(
+                                                                    round.round,
+                                                                )}
+                                                            </span>
+                                                        ),
+                                                )
                                                 : "No funding data available"}
                                         </p>
                                     </div>
@@ -370,7 +383,7 @@ export const EntrepreneurProfile: React.FC = () => {
                                             className="text-accent-600 mr-1"
                                         />
                                         {entrepreneur.valuation.min &&
-                                        entrepreneur.valuation.max
+                                            entrepreneur.valuation.max
                                             ? `${entrepreneur.valuation.min.toLocaleString()}M - ${entrepreneur.valuation.max.toLocaleString()}M`
                                             : "No valuation data available"}
                                     </p>
@@ -383,24 +396,24 @@ export const EntrepreneurProfile: React.FC = () => {
                                     <p className="text-md font-medium text-gray-900">
                                         {entrepreneur.fundingRound.length > 1
                                             ? entrepreneur.fundingRound
-                                                  .filter(
-                                                      (round) =>
-                                                          !round.isCurrent,
-                                                  )
-                                                  .map((round, index) => (
-                                                      <span key={index}>
-                                                          $
-                                                          {round.amount.toLocaleString()}{" "}
-                                                          {getRoundLabel(
-                                                              round.round,
-                                                          )}{" "}
-                                                          (
-                                                          {new Date(
-                                                              round.date,
-                                                          ).getFullYear()}
-                                                          )
-                                                      </span>
-                                                  ))
+                                                .filter(
+                                                    (round) =>
+                                                        !round.isCurrent,
+                                                )
+                                                .map((round, index) => (
+                                                    <span key={index}>
+                                                        $
+                                                        {round.amount.toLocaleString()}{" "}
+                                                        {getRoundLabel(
+                                                            round.round,
+                                                        )}{" "}
+                                                        (
+                                                        {new Date(
+                                                            round.date,
+                                                        ).getFullYear()}
+                                                        )
+                                                    </span>
+                                                ))
                                             : "No previous funding data available"}
                                     </p>
                                 </div>
@@ -412,10 +425,10 @@ export const EntrepreneurProfile: React.FC = () => {
                                     <div className="mt-2 space-y-2">
                                         {entrepreneur.fundingRound.length ===
                                             0 && (
-                                            <p className="text-gray-500 italic">
-                                                No funding rounds available
-                                            </p>
-                                        )}
+                                                <p className="text-gray-500 italic">
+                                                    No funding rounds available
+                                                </p>
+                                            )}
                                         {entrepreneur.fundingRound.map(
                                             (round, index) => (
                                                 <div
@@ -458,72 +471,67 @@ export const EntrepreneurProfile: React.FC = () => {
 
                     {/* Documents */}
                     <Card>
-                        <CardHeader>
+                        <CardHeader className="flex flex-row items-center justify-between">
                             <h2 className="text-lg font-medium text-gray-900">
                                 Documents
                             </h2>
+                            <Link to={"/documents"}>
+                                <Button variant="outline" size="sm">
+                                    View All
+                                </Button></Link>
                         </CardHeader>
                         <CardBody>
                             <div className="space-y-3">
-                                <div className="flex items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors">
-                                    <div className="p-2 bg-primary-50 rounded-md mr-3">
-                                        <FileText
-                                            size={18}
-                                            className="text-primary-700"
-                                        />
-                                    </div>
-                                    <div className="flex-1">
-                                        <h3 className="text-sm font-medium text-gray-900">
-                                            Pitch Deck
-                                        </h3>
-                                        <p className="text-xs text-gray-500">
-                                            Updated 2 months ago
-                                        </p>
-                                    </div>
-                                    <Button variant="outline" size="sm">
-                                        View
-                                    </Button>
-                                </div>
+                                {getDocumentsData.documents.length > 0 &&
+                                    getDocumentsData.documents
+                                        .slice(0, 5)
+                                        .map((doc: Document) => (
+                                            <div
+                                                key={doc._id}
+                                                className="flex items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors"
+                                            >
+                                                <div className="p-2 bg-primary-50 rounded-md mr-3">
+                                                    <FileText
+                                                        size={18}
+                                                        className="text-primary-700"
+                                                    />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <h3 className="text-sm font-medium text-gray-900">
+                                                        {doc.originalName.slice(
+                                                            0,
+                                                            10,
+                                                        )}
+                                                        ...{doc.format}
+                                                    </h3>
+                                                    <p className="text-xs text-gray-500">
+                                                        Updated{" "}
+                                                        {new Date(
+                                                            doc.createdAt,
+                                                        ).toLocaleDateString()}
+                                                    </p>
+                                                </div>
 
-                                <div className="flex items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors">
-                                    <div className="p-2 bg-primary-50 rounded-md mr-3">
-                                        <FileText
-                                            size={18}
-                                            className="text-primary-700"
-                                        />
-                                    </div>
-                                    <div className="flex-1">
-                                        <h3 className="text-sm font-medium text-gray-900">
-                                            Business Plan
-                                        </h3>
-                                        <p className="text-xs text-gray-500">
-                                            Updated 1 month ago
-                                        </p>
-                                    </div>
-                                    <Button variant="outline" size="sm">
-                                        View
-                                    </Button>
-                                </div>
+                                                <div className="flex gap-2 items-center">
+                                                    <Button
+                                                        onClick={() => setSelectedDoc(doc)}
+                                                        variant="outline"
+                                                        size="xs"
+                                                    >
+                                                        <Eye size={14} />
+                                                    </Button>
+                                                    <Link to={doc.cloudinaryUrl} target="_blank" rel="noopener noreferrer">
+                                                        <Button
+                                                            variant="outline"
+                                                            size="xs"
+                                                        >
+                                                            <Download size={14} />
+                                                        </Button>
+                                                    </Link>
+                                                </div>
 
-                                <div className="flex items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors">
-                                    <div className="p-2 bg-primary-50 rounded-md mr-3">
-                                        <FileText
-                                            size={18}
-                                            className="text-primary-700"
-                                        />
-                                    </div>
-                                    <div className="flex-1">
-                                        <h3 className="text-sm font-medium text-gray-900">
-                                            Financial Projections
-                                        </h3>
-                                        <p className="text-xs text-gray-500">
-                                            Updated 2 weeks ago
-                                        </p>
-                                    </div>
-                                    <Button variant="outline" size="sm">
-                                        View
-                                    </Button>
-                                </div>
+                                            </div>
+                                        ))}
                             </div>
 
                             {!isCurrentUser && isInvestor && (

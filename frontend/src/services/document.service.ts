@@ -23,7 +23,18 @@ export const documentApi = apiSlice.injectEndpoints({
                       ]
                     : [{ type: "Document", id: "LIST" }],
         }),
+        deleteDocument: builder.mutation({
+            query: (id: string) => ({
+                url: `/document/${id}`,
+                method: "DELETE",
+            }),
+            invalidatesTags: [{ type: "Document", id: "LIST" }],
+        }),
     }),
 });
 
-export const { useUploadDocumentMutation, useGetDocumentsQuery } = documentApi;
+export const {
+    useUploadDocumentMutation,
+    useGetDocumentsQuery,
+    useDeleteDocumentMutation,
+} = documentApi;

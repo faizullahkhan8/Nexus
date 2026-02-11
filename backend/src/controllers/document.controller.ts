@@ -27,9 +27,9 @@ export const uploadDocument = asyncHandler(
         }
 
         const result = await cloudinary.uploader.upload(req.file.path, {
-            resource_type: "raw",
+            resource_type: "auto",
             folder: "documents",
-            public_id: req.body.originalName,
+            unique_filename: true,
         });
 
         if (!result) {
@@ -79,6 +79,58 @@ export const getDocuments = asyncHandler(
             success: true,
             message: "Documents fetched successfully",
             documents,
+        });
+    },
+);
+
+export const deleteDocument = asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+        const DocumentModel = getLocalDocumentModel();
+
+        if (!DocumentModel) {
+            return next(new ErrorResponse("Document model not found", 500));
+        }
+        const { id } = req.params;
+        const userId = req.session.user?._id;
+
+        if (!userId) {
+            return next(new ErrorResponse("Not authorized", 401));
+        }
+
+        const document = await DocumentModel.findOne({
+            _id: id,
+            uploadedBy: userId,
+        });
+
+        if (!document) {
+            return next(
+                new ErrorResponse("Document not found or unauthorized", 404),
+            );
+        }
+
+        if (document.cloudinaryPublicId) {
+            const result = await cloudinary.uploader.destroy(
+                document.cloudinaryPublicId,
+                {
+                    resource_type: "raw",
+                    invalidate: true,
+                },
+            );
+            if (result.result !== "ok") {
+                console.log(document.cloudinaryPublicId);
+                return next(new ErrorResponse("Error deleting file", 500));
+            }
+        }
+
+        const result = await DocumentModel.findByIdAndDelete(id);
+
+        if (!result) {
+            return next(new ErrorResponse("Error deleting document", 500));
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Document deleted successfully",
         });
     },
 );
