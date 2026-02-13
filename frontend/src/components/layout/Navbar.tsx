@@ -15,6 +15,7 @@ import { Button } from "../ui/Button";
 import { useLogoutMutation } from "../../services/auth.service";
 import { useDispatch, useSelector } from "react-redux";
 import { IAuthProps, logout as logoutAction } from "../../features/auth.slice";
+import { useGetAllNotificationsQuery } from "../../services/notification.service";
 
 export const Navbar: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -23,6 +24,21 @@ export const Navbar: React.FC = () => {
 
     const user = useSelector((state: { auth: IAuthProps }) => state.auth);
     const dispatch = useDispatch();
+    const { data: notificationsData } = useGetAllNotificationsQuery(
+        undefined,
+        {
+            skip: !user?._id,
+            pollingInterval: 30000,
+            refetchOnFocus: true,
+            refetchOnReconnect: true,
+        },
+    );
+
+    const unreadNotificationsCount =
+        notificationsData?.unreadCount ??
+        notificationsData?.data?.filter((notification) => !notification.isRead)
+            .length ??
+        0;
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -52,24 +68,39 @@ export const Navbar: React.FC = () => {
                     <Building2 size={18} />
                 ) : (
                     <CircleDollarSign size={18} />
-                ),
+            ),
             text: "Dashboard",
             path: dashboardRoute,
+            showNewBadge: false,
         },
         {
             icon: <MessageCircle size={18} />,
             text: "Messages",
             path: user ? "/messages" : "/login",
+            showNewBadge: false,
         },
         {
-            icon: <Bell size={18} />,
+            icon: (
+                <span className="relative inline-flex">
+                    <Bell size={18} />
+                    {unreadNotificationsCount > 0 && (
+                        <span className="absolute -top-2 -right-2 min-w-[1.1rem] h-[1.1rem] px-1 rounded-full bg-error-600 text-white text-[10px] leading-none font-semibold inline-flex items-center justify-center">
+                            {unreadNotificationsCount > 99
+                                ? "99+"
+                                : unreadNotificationsCount}
+                        </span>
+                    )}
+                </span>
+            ),
             text: "Notifications",
             path: user ? "/notifications" : "/login",
+            showNewBadge: unreadNotificationsCount > 0,
         },
         {
             icon: <User size={18} />,
             text: "Profile",
             path: profileRoute,
+            showNewBadge: false,
         },
     ];
 
@@ -125,6 +156,11 @@ export const Navbar: React.FC = () => {
                                             {link.icon}
                                         </span>
                                         {link.text}
+                                        {link.showNewBadge && (
+                                            <span className="ml-2 rounded-full bg-error-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-error-700">
+                                                New
+                                            </span>
+                                        )}
                                     </Link>
                                 ))}
 
@@ -224,6 +260,11 @@ export const Navbar: React.FC = () => {
                                                 {link.icon}
                                             </span>
                                             {link.text}
+                                            {link.showNewBadge && (
+                                                <span className="ml-2 rounded-full bg-error-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-error-700">
+                                                    New
+                                                </span>
+                                            )}
                                         </Link>
                                     ))}
 

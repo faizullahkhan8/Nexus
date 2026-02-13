@@ -107,66 +107,68 @@ export const DocumentsPage: React.FC = () => {
             </CardHeader>
             <CardBody>
               <div className="space-y-2">
-                {data.documents.map((doc: Document) => (
-                  <div
-                    key={doc._id}
-                    className="flex items-center p-4 hover:bg-gray-50 rounded-lg transition-colors duration-200"
-                  >
-                    <div className="p-2 bg-primary-50 rounded-lg mr-4">
-                      <FileText size={24} className="text-primary-600" />
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-medium text-gray-900 truncate">
-                          {doc.fileName}
-                        </h3>
-                        {doc.visibility === "public" && (
-                          <Badge variant="secondary" size="sm">Shared</Badge>
-                        )}
+                {
+                  data?.documents &&
+                  data?.documents.map((doc: Document) => (
+                    <div
+                      key={doc._id}
+                      className="flex items-center p-4 hover:bg-gray-50 rounded-lg transition-colors duration-200"
+                    >
+                      <div className="p-2 bg-primary-50 rounded-lg mr-4">
+                        <FileText size={24} className="text-primary-600" />
                       </div>
 
-                      <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
-                        <span>{doc.format}</span>
-                        <span>{doc.fileSize}</span>
-                        <span>Modified {new Date(doc.updatedAt).toLocaleDateString()}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-sm font-medium text-gray-900 truncate">
+                            {doc.fileName}
+                          </h3>
+                          {doc.visibility === "public" && (
+                            <Badge variant="secondary" size="sm">Shared</Badge>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
+                          <span>{doc.format}</span>
+                          <span>{doc.fileSize}</span>
+                          <span>Modified {new Date(doc.updatedAt).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 ml-4">
+
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="p-2"
+                          aria-label="Download"
+                          onClick={() => setSelectedDoc(doc)}
+                        >
+                          <Eye size={18} />
+                        </Button>
+
+
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="p-2"
+                          aria-label="Share"
+                        >
+                          <Share2 size={18} />
+                        </Button>
+
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="p-2 text-error-600 hover:text-error-700"
+                          aria-label="Delete"
+                          onClick={() => handleDeleteDocument(doc)}
+                        >
+                          {isDeleting && doc._id ? <Loader2 className="animate-spin" size={18} /> : <Trash2 size={18} />}
+                        </Button>
                       </div>
                     </div>
-
-                    <div className="flex items-center gap-2 ml-4">
-
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="p-2"
-                        aria-label="Download"
-                        onClick={() => setSelectedDoc(doc)}
-                      >
-                        <Eye size={18} />
-                      </Button>
-
-
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="p-2"
-                        aria-label="Share"
-                      >
-                        <Share2 size={18} />
-                      </Button>
-
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="p-2 text-error-600 hover:text-error-700"
-                        aria-label="Delete"
-                        onClick={() => handleDeleteDocument(doc)}
-                      >
-                        {isDeleting && doc._id ? <Loader2 className="animate-spin" size={18} /> : <Trash2 size={18} />}
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             </CardBody>
           </Card>

@@ -18,6 +18,8 @@ import { useSelector } from "react-redux";
 import { IAuthProps } from "../../features/auth.slice";
 import { useGetAllUserRequestsQuery } from "../../services/requst.service";
 import { useGetAllInvestorQuery } from "../../services/auth.service";
+import { useGetMyMeetingsQuery } from "../../services/meeting.service";
+import { useGetAllNotificationsQuery } from "../../services/notification.service";
 
 export const EntrepreneurDashboard: React.FC = () => {
     const user = useSelector((state: { auth: IAuthProps }) => state.auth);
@@ -38,6 +40,16 @@ export const EntrepreneurDashboard: React.FC = () => {
         isError: investorError,
         isLoading: investorLoading,
     } = useGetAllInvestorQuery({});
+    const {
+        data: meetingsData,
+        isError: meetingsError,
+        isLoading: meetingsLoading,
+    } = useGetMyMeetingsQuery();
+    const {
+        data: notificationsData,
+        isError: notificationsError,
+        isLoading: notificationsLoading,
+    } = useGetAllNotificationsQuery(undefined);
 
     useEffect(() => {
         if (requestsData) {
@@ -46,7 +58,7 @@ export const EntrepreneurDashboard: React.FC = () => {
         if (investorData) {
             setRecommendedInvestors(investorData.investors);
         }
-    }, [user, requestsData, investorData]);
+    }, [investorData, requestsData]);
 
     const handleRequestStatusUpdate = (
         requestId: string,
@@ -64,9 +76,29 @@ export const EntrepreneurDashboard: React.FC = () => {
     const pendingRequests = entrepreneurRequest.filter(
         (req) => req.status === "pending",
     );
+    const upcomingMeetingsCount =
+        meetingsData?.meetings?.filter(
+            (meeting) =>
+                meeting.status === "scheduled" &&
+                new Date(meeting.startTime).getTime() >= Date.now(),
+        ).length ?? 0;
+    const unreadNotificationsCount =
+        notificationsData?.unreadCount ??
+        notificationsData?.data?.filter((notification) => !notification.isRead)
+            .length ??
+        0;
 
-    if (requestLoading) return <p>Loading...</p>;
-    if (requstError) return <p>Something went wronge! try agian later.</p>;
+    if (
+        requestLoading ||
+        investorLoading ||
+        meetingsLoading ||
+        notificationsLoading
+    ) {
+        return <p>Loading...</p>;
+    }
+    if (requstError || investorError || meetingsError || notificationsError) {
+        return <p>Something went wronge! try agian later.</p>;
+    }
 
     return (
         <div className="space-y-6 animate-fade-in">
@@ -146,7 +178,7 @@ export const EntrepreneurDashboard: React.FC = () => {
                                     Upcoming Meetings
                                 </p>
                                 <h3 className="text-xl font-semibold text-accent-900">
-                                    2
+                                    {upcomingMeetingsCount}
                                 </h3>
                             </div>
                         </div>
@@ -164,10 +196,10 @@ export const EntrepreneurDashboard: React.FC = () => {
                             </div>
                             <div>
                                 <p className="text-sm font-medium text-success-700">
-                                    Profile Views
+                                    Unread Notifications
                                 </p>
                                 <h3 className="text-xl font-semibold text-success-900">
-                                    24
+                                    {unreadNotificationsCount}
                                 </h3>
                             </div>
                         </div>
@@ -184,7 +216,7 @@ export const EntrepreneurDashboard: React.FC = () => {
                                 Collaboration Requests
                             </h2>
                             <Badge variant="primary">
-                                {entrepreneurRequest.length} pending
+                                {pendingRequests.length} pending
                             </Badge>
                         </CardHeader>
 

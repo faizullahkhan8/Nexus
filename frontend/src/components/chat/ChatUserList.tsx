@@ -6,6 +6,7 @@ import { Avatar } from "../ui/Avatar";
 import { Badge } from "../ui/Badge";
 import { useSelector } from "react-redux";
 import { IAuthProps } from "../../features/auth.slice";
+import { Phone, Video } from "lucide-react";
 
 interface ChatUserListProps {
     conversations: Array<
@@ -14,10 +15,14 @@ interface ChatUserListProps {
             lastMessage?: Message;
         }
     >;
+    enableCallActions?: boolean;
+    onStartCall?: (user: User, type: "audio" | "video") => void;
 }
 
 export const ChatUserList: React.FC<ChatUserListProps> = ({
     conversations,
+    enableCallActions = false,
+    onStartCall,
 }) => {
     const navigate = useNavigate();
     const { userId: activeUserId } = useParams<{ userId: string }>();
@@ -51,7 +56,7 @@ export const ChatUserList: React.FC<ChatUserListProps> = ({
                             return (
                                 <div
                                     key={conversation.id}
-                                    className={`px-4 py-3 flex cursor-pointer transition-colors duration-200 ${
+                                    className={`px-4 py-3 flex cursor-pointer transition-colors duration-200 group ${
                                         isActive
                                             ? "bg-primary-50 border-l-4 border-primary-600"
                                             : "hover:bg-gray-50 border-l-4 border-transparent"
@@ -76,23 +81,67 @@ export const ChatUserList: React.FC<ChatUserListProps> = ({
                                     />
 
                                     <div className="flex-1 min-w-0">
-                                        <div className="flex justify-between items-baseline">
+                                        <div className="flex justify-between items-baseline gap-2">
                                             <h3 className="text-sm font-medium text-gray-900 truncate">
                                                 {otherUser.name}
                                             </h3>
 
-                                            {lastMessage && (
-                                                <span className="text-xs text-gray-500">
-                                                    {formatDistanceToNow(
-                                                        new Date(
-                                                            lastMessage.timestamp ||
-                                                                lastMessage.createdAt ||
-                                                                "",
-                                                        ),
-                                                        { addSuffix: false },
+                                            <div className="flex items-center gap-2">
+                                                {lastMessage && (
+                                                    <span className="text-xs text-gray-500">
+                                                        {formatDistanceToNow(
+                                                            new Date(
+                                                                lastMessage.timestamp ||
+                                                                    lastMessage.createdAt ||
+                                                                    "",
+                                                            ),
+                                                            { addSuffix: false },
+                                                        )}
+                                                    </span>
+                                                )}
+
+                                                {enableCallActions &&
+                                                    onStartCall && (
+                                                        <div className="flex items-center gap-1">
+                                                            <button
+                                                                type="button"
+                                                                className="p-1 rounded-full text-gray-500 hover:text-primary-600 hover:bg-primary-50 transition-colors"
+                                                                aria-label={`Start voice call with ${otherUser.name}`}
+                                                                onClick={(
+                                                                    event,
+                                                                ) => {
+                                                                    event.stopPropagation();
+                                                                    onStartCall(
+                                                                        otherUser,
+                                                                        "audio",
+                                                                    );
+                                                                }}
+                                                            >
+                                                                <Phone
+                                                                    size={14}
+                                                                />
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                className="p-1 rounded-full text-gray-500 hover:text-primary-600 hover:bg-primary-50 transition-colors"
+                                                                aria-label={`Start video call with ${otherUser.name}`}
+                                                                onClick={(
+                                                                    event,
+                                                                ) => {
+                                                                    event.stopPropagation();
+                                                                    onStartCall(
+                                                                        otherUser,
+                                                                        "video",
+                                                                    );
+                                                                }}
+                                                            >
+                                                                <Video
+                                                                    size={14}
+                                                                />
+                                                            </button>
+                                                        </div>
                                                     )}
-                                                </span>
-                                            )}
+                                            </div>
                                         </div>
 
                                         <div className="flex justify-between items-center mt-1">

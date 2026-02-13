@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import {
     BrowserRouter as Router,
     Routes,
@@ -29,11 +29,16 @@ import { DealsPage } from "./pages/deals/DealsPage";
 import { ChatPage } from "./pages/chat/ChatPage";
 import { socket } from "./socket";
 import { useSelector } from "react-redux";
-import { User } from "./types";
+import { IAuthProps } from "./features/auth.slice";
+import {
+    playMessageSound,
+    playNotificationSound,
+    primeSound,
+} from "./utils/sound";
 
 function App() {
-    const auth = useSelector((state: { auth: User | null }) =>
-        Boolean(state.auth),
+    const auth = useSelector((state: { auth: IAuthProps }) =>
+        Boolean(state.auth._id),
     );
 
     useEffect(() => {
@@ -45,6 +50,32 @@ function App() {
             socket.disconnect();
         }
     }, [auth]);
+
+    useEffect(() => {
+        primeSound();
+    }, []);
+
+    useEffect(() => {
+        if (!auth) return;
+
+        const handleNotificationSound = (notification: { type?: string }) => {
+            if (notification?.type === "NEW_MESSAGE") return;
+            playNotificationSound();
+        };
+
+        const handleMessageSound = () => {
+            playMessageSound();
+        };
+
+        socket.on("notification", handleNotificationSound);
+        socket.on("new_message", handleMessageSound);
+
+        return () => {
+            socket.off("notification", handleNotificationSound);
+            socket.off("new_message", handleMessageSound);
+        };
+    }, [auth]);
+
     return (
         <AuthProvider>
             <Router>

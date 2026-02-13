@@ -1,8 +1,25 @@
 import { apiSlice } from "./apiSlice";
+import { Notification } from "../types";
+
+interface NotificationsResponse {
+    success: boolean;
+    unreadCount: number;
+    data: Notification[];
+}
+
+interface MarkNotificationReadResponse {
+    success: boolean;
+    data: Notification;
+}
+
+interface MarkAllNotificationsReadResponse {
+    success: boolean;
+    message: string;
+}
 
 export const notificationApi = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
-        getAllNotifications: builder.query({
+        getAllNotifications: builder.query<NotificationsResponse, void>({
             query: () => ({
                 url: "/notification/get-all",
                 method: "GET",
@@ -19,17 +36,23 @@ export const notificationApi = apiSlice.injectEndpoints({
                     : [{ type: "Notification", id: "LIST" }],
         }),
 
-        markNotificationRead: builder.mutation({
+        markNotificationRead: builder.mutation<
+            MarkNotificationReadResponse,
+            string
+        >({
             query: (notificationId) => ({
                 url: `/notification/${notificationId}/read`,
                 method: "PUT",
             }),
-            invalidatesTags: (result, error, id) => [
+            invalidatesTags: (_result, _error, id) => [
                 { type: "Notification", id },
             ],
         }),
 
-        markNotificationAsAllRead: builder.mutation({
+        markNotificationAsAllRead: builder.mutation<
+            MarkAllNotificationsReadResponse,
+            void
+        >({
             query: () => ({
                 url: "/notification/read-all",
                 method: "PUT",

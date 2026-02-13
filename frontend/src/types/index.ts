@@ -99,6 +99,59 @@ export interface CollaborationRequest {
     message: string;
 }
 
+export type DealStatus =
+    | "prospecting"
+    | "due_diligence"
+    | "term_sheet"
+    | "negotiation"
+    | "closed_won"
+    | "closed_lost";
+
+export type DealStage =
+    | "Pre-seed"
+    | "Seed"
+    | "Series A"
+    | "Series B"
+    | "Series C"
+    | "Growth";
+
+export interface Deal {
+    _id: string;
+    title: string;
+    investorId: User;
+    startupId: User;
+    amount: number;
+    equity: number;
+    stage: DealStage;
+    status: DealStatus;
+    notes?: string;
+    expectedCloseDate?: string;
+    lastActivity: string;
+    createdBy: User;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export type MeetingStatus = "scheduled" | "completed" | "cancelled";
+export type MeetingType = "video" | "audio" | "in_person";
+
+export interface Meeting {
+    _id: string;
+    title: string;
+    agenda?: string;
+    scheduledBy: User;
+    attendeeId: User;
+    startTime: string;
+    durationMinutes: number;
+    status: MeetingStatus;
+    meetingType: MeetingType;
+    meetingLink?: string;
+    location?: string;
+    relatedDealId?: Deal;
+    createdAt: string;
+    updatedAt: string;
+}
+
 export interface Notification {
     _id: string;
     sender: User;

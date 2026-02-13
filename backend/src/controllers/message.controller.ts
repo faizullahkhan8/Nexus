@@ -85,11 +85,12 @@ export const getMessagesBetweenUsers = asyncHandler(
         });
 
         if (!conversation) {
-            return res.status(200).json({
+            res.status(200).json({
                 success: true,
                 count: 0,
                 data: [],
             });
+            return;
         }
 
         const messages = await LocalMessageModel.find({

@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Users, PieChart, Filter, Search, PlusCircle } from "lucide-react";
+import { Users, PieChart, Filter, Search, PlusCircle, TrendingUp } from "lucide-react";
 import { Button } from "../../components/ui/Button";
 import { Card, CardBody, CardHeader } from "../../components/ui/Card";
 import { Input } from "../../components/ui/Input";
 import { Badge } from "../../components/ui/Badge";
 import { EntrepreneurCard } from "../../components/entrepreneur/EntrepreneurCard";
-import { getRequestsFromInvestor } from "../../data/collaborationRequests";
 import { useSelector } from "react-redux";
 import { IAuthProps } from "../../features/auth.slice";
 import { useGetAllEntrepreneursQuery } from "../../services/auth.service";
-import { Entrepreneur } from "../../types";
+import { useGetAllUserRequestsQuery } from "../../services/requst.service";
+import { useGetMyDealsQuery } from "../../services/deal.service";
+import { CollaborationRequest, Entrepreneur } from "../../types";
 
 export const InvestorDashboard: React.FC = () => {
     const user = useSelector((state: { auth: IAuthProps }) => state.auth);
@@ -19,6 +20,10 @@ export const InvestorDashboard: React.FC = () => {
     const [entrepreneurs, setEntrepreneurs] = useState<Entrepreneur[]>([]);
 
     const { data, isLoading, error } = useGetAllEntrepreneursQuery({});
+    const { data: requestsData, isLoading: requestsLoading, error: requestsError } =
+        useGetAllUserRequestsQuery({});
+    const { data: dealsData, isLoading: dealsLoading, error: dealsError } =
+        useGetMyDealsQuery();
 
     useEffect(() => {
         // Reset filters on mount
@@ -28,10 +33,7 @@ export const InvestorDashboard: React.FC = () => {
         if (data) {
             setEntrepreneurs(data.entrepreneurs);
         }
-    }, []);
-
-    // Get collaboration requests sent by this investor
-    const sentRequests = getRequestsFromInvestor(user._id);
+    }, [data]);
 
     // Filter entrepreneurs based on search and industry filters
     const filteredEntrepreneurs = entrepreneurs.filter((entrepreneur) => {
@@ -64,6 +66,31 @@ export const InvestorDashboard: React.FC = () => {
         new Set(entrepreneurs.map((e) => e.industry)),
     );
 
+    const myConnections = (() => {
+        if (!requestsData?.requests || !user?._id) return 0;
+
+        const connectedUserIds = new Set<string>();
+
+        (requestsData.requests as CollaborationRequest[])
+            .filter((request) => request.status === "accepted")
+            .forEach((request) => {
+                if (request.senderId._id === user._id) {
+                    connectedUserIds.add(request.receiverId._id);
+                }
+
+                if (request.receiverId._id === user._id) {
+                    connectedUserIds.add(request.senderId._id);
+                }
+            });
+
+        return connectedUserIds.size;
+    })();
+
+    const activeDealsCount =
+        dealsData?.deals?.filter(
+            (deal) => !["closed_won", "closed_lost"].includes(deal.status),
+        ).length ?? 0;
+
     // Toggle industry selection
     const toggleIndustry = (industry: string) => {
         setSelectedIndustries((prevSelected) =>
@@ -75,11 +102,11 @@ export const InvestorDashboard: React.FC = () => {
 
     if (!user) return null;
 
-    if (isLoading) {
+    if (isLoading || requestsLoading || dealsLoading) {
         return <div>Loading...</div>;
     }
 
-    if (error) {
+    if (error || requestsError || dealsError) {
         return <div>Error loading entrepreneurs.</div>;
     }
 
@@ -142,7 +169,7 @@ export const InvestorDashboard: React.FC = () => {
             </div>
 
             {/* Stats summary */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <Card className="bg-primary-50 border border-primary-100">
                     <CardBody>
                         <div className="flex items-center">
@@ -193,11 +220,25 @@ export const InvestorDashboard: React.FC = () => {
                                     Your Connections
                                 </p>
                                 <h3 className="text-xl font-semibold text-accent-900">
-                                    {
-                                        sentRequests.filter(
-                                            (req) => req.status === "accepted",
-                                        ).length
-                                    }
+                                    {myConnections}
+                                </h3>
+                            </div>
+                        </div>
+                    </CardBody>
+                </Card>
+
+                <Card className="bg-success-50 border border-success-100">
+                    <CardBody>
+                        <div className="flex items-center">
+                            <div className="p-3 bg-success-100 rounded-full mr-4">
+                                <TrendingUp size={20} className="text-success-700" />
+                            </div>
+                            <div>
+                                <p className="text-sm font-medium text-success-700">
+                                    Active Deals
+                                </p>
+                                <h3 className="text-xl font-semibold text-success-900">
+                                    {activeDealsCount}
                                 </h3>
                             </div>
                         </div>

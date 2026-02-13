@@ -13,6 +13,8 @@ import RequestRouter from "./routers/request.router";
 import NotificationRouter from "./routers/notification.router";
 import MessageRouter from "./routers/message.router";
 import DocumentRouter from "./routers/document.router";
+import DealRouter from "./routers/deal.router";
+import MeetingRouter from "./routers/meeting.router";
 import { ErrorHandler } from "./middlewares/ErrorHandler";
 
 dotenv.config();
@@ -60,6 +62,8 @@ app.use("/api/request/", RequestRouter);
 app.use("/api/notification/", NotificationRouter);
 app.use("/api/message/", MessageRouter);
 app.use("/api/document/", DocumentRouter);
+app.use("/api/deal/", DealRouter);
+app.use("/api/meeting/", MeetingRouter);
 
 io.engine.use(sessionMiddleware);
 
@@ -76,6 +80,28 @@ io.on("connection", (socket) => {
     socket.on("disconnect", (reason) => {
         console.log(reason);
     });
+
+    const emitToUser = (
+        event: string,
+        payload: { to?: string; callId?: string; [key: string]: any },
+    ) => {
+        if (!payload?.to) return;
+        io.to(`user:${payload.to}`).emit(event, {
+            ...payload,
+            from: {
+                _id: session.user?._id,
+                name: session.user?.name,
+                avatarUrl: payload?.from?.avatarUrl,
+            },
+        });
+    };
+
+    socket.on("call:offer", (payload) => emitToUser("call:offer", payload));
+    socket.on("call:answer", (payload) => emitToUser("call:answer", payload));
+    socket.on("call:ice", (payload) => emitToUser("call:ice", payload));
+    socket.on("call:reject", (payload) => emitToUser("call:reject", payload));
+    socket.on("call:hangup", (payload) => emitToUser("call:hangup", payload));
+    socket.on("call:busy", (payload) => emitToUser("call:busy", payload));
 });
 
 io.use((socket, next) => {

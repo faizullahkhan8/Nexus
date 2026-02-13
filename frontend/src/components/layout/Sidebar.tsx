@@ -13,19 +13,26 @@ import {
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { IAuthProps } from "../../features/auth.slice";
+import { useGetAllNotificationsQuery } from "../../services/notification.service";
 
 interface SidebarItemProps {
     to: string;
     icon: React.ReactNode;
     text: string;
+    unreadCount?: number;
 }
 
-const SidebarItem: React.FC<SidebarItemProps> = ({ to, icon, text }) => {
+const SidebarItem: React.FC<SidebarItemProps> = ({
+    to,
+    icon,
+    text,
+    unreadCount = 0,
+}) => {
     return (
         <NavLink
             to={to}
             className={({ isActive }) =>
-                `flex items-center py-2.5 px-4 rounded-md transition-colors duration-100 ${
+                `flex items-center py-2.5 px-4 rounded-md transition-colors duration-100 gap-2 ${
                     isActive
                         ? "bg-primary-50 text-primary-700"
                         : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
@@ -33,13 +40,33 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ to, icon, text }) => {
             }
         >
             <span className="mr-3">{icon}</span>
-            <span className="text-sm font-medium">{text}</span>
+            <span className="text-sm font-medium flex-1">{text}</span>
+            {unreadCount > 0 && (
+                <span className="min-w-[1.1rem] h-[1.1rem] px-1 rounded-full bg-error-600 text-white text-[10px] leading-none font-semibold inline-flex items-center justify-center">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+            )}
         </NavLink>
     );
 };
 
 export const Sidebar: React.FC = () => {
     const user = useSelector((state: { auth: IAuthProps }) => state.auth);
+    const { data: notificationsData } = useGetAllNotificationsQuery(
+        undefined,
+        {
+            skip: !user?._id,
+            pollingInterval: 30000,
+            refetchOnFocus: true,
+            refetchOnReconnect: true,
+        },
+    );
+
+    const unreadNotificationsCount =
+        notificationsData?.unreadCount ??
+        notificationsData?.data?.filter((notification) => !notification.isRead)
+            .length ??
+        0;
 
     if (!user) return null;
 
@@ -69,6 +96,12 @@ export const Sidebar: React.FC = () => {
             to: "/notifications",
             icon: <Bell size={20} />,
             text: "Notifications",
+            unreadCount: unreadNotificationsCount,
+        },
+        {
+            to: "/deals",
+            icon: <FileText size={20} />,
+            text: "Deals & Meetings",
         },
         { to: "/documents", icon: <FileText size={20} />, text: "Documents" },
     ];
@@ -98,8 +131,9 @@ export const Sidebar: React.FC = () => {
             to: "/notifications",
             icon: <Bell size={20} />,
             text: "Notifications",
+            unreadCount: unreadNotificationsCount,
         },
-        { to: "/deals", icon: <FileText size={20} />, text: "Deals" },
+        { to: "/deals", icon: <FileText size={20} />, text: "Deals & Meetings" },
     ];
 
     const sidebarItems =
@@ -122,6 +156,7 @@ export const Sidebar: React.FC = () => {
                                 to={item.to}
                                 icon={item.icon}
                                 text={item.text}
+                                unreadCount={item.unreadCount}
                             />
                         ))}
                     </div>

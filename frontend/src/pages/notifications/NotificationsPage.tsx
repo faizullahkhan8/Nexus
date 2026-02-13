@@ -21,16 +21,19 @@ import { Notification as INotifications, User } from "../../types";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { socket } from "../../socket";
+import { IAuthProps } from "../../features/auth.slice";
 
 export const NotificationsPage: React.FC = () => {
-    const auth = useSelector((state: { auth: User }) => Boolean(state.auth));
+    const auth = useSelector((state: { auth: IAuthProps }) =>
+        Boolean(state.auth._id),
+    );
     const [notifications, setNotifications] = useState<INotifications[]>([]);
     const {
         data: notificationData,
         isLoading: notificationLaoding,
         isError: notificationError,
         refetch: refetchNotifications,
-    } = useGetAllNotificationsQuery({});
+    } = useGetAllNotificationsQuery(undefined);
 
     const [
         markNotificationRead,
@@ -38,7 +41,7 @@ export const NotificationsPage: React.FC = () => {
             isLoading: markNotificationsReadLoading,
             isError: markNotificationReadError,
         },
-    ] = useMarkNotificationReadMutation({});
+    ] = useMarkNotificationReadMutation();
 
     const [
         markNotificationsAsAllRead,
@@ -46,11 +49,15 @@ export const NotificationsPage: React.FC = () => {
             isLoading: markNotificationsAsAllReadLoading,
             isError: markNotificationsAsAllReadError,
         },
-    ] = useMarkNotificationAsAllReadMutation({});
+    ] = useMarkNotificationAsAllReadMutation();
 
     useEffect(() => {
         if (notificationData) setNotifications(notificationData.data);
     }, [notificationData]);
+
+    const unreadCount = notifications.filter(
+        (notification) => !notification.isRead,
+    ).length;
 
     const notificationHandler = (notification: any, ack: any) => {
         console.log("New Notification received:", notification);
@@ -99,7 +106,7 @@ export const NotificationsPage: React.FC = () => {
             case "CONNECTION_REQUEST":
                 return "/dashboard/entrepreneur";
             case "REQUEST_ACCEPTED":
-                return `/profile/${notification.sender.role === "investor" ? "investor" : "entrepreneur"}/${senderId}`;
+                return `/profile/${notification.sender?.role === "investor" ? "investor" : "entrepreneur"}/${senderId}`;
             case "INVESTMENT_RECEIVED":
                 return "/deals";
             case "DOCUMENT_SHARED":
@@ -133,17 +140,18 @@ export const NotificationsPage: React.FC = () => {
                         Notifications
                     </h1>
                     <p className="text-gray-600">
-                        Stay updated with your network activity
+                        {unreadCount} unread of {notifications.length} total
                     </p>
                 </div>
 
                 <Button
                     onClick={async () => {
-                        markNotificationsAsAllRead({});
-                        refetchNotifications();
+                        await markNotificationsAsAllRead().unwrap();
+                        await refetchNotifications();
                     }}
                     variant="outline"
                     size="sm"
+                    disabled={unreadCount === 0}
                 >
                     Mark all as read
                 </Button>
@@ -174,13 +182,18 @@ export const NotificationsPage: React.FC = () => {
                                         {notification.sender.name}
                                     </span>
                                     {!notification.isRead && (
-                                        <Badge
-                                            variant="primary"
-                                            size="sm"
-                                            rounded
-                                        >
-                                            New
-                                        </Badge>
+                                        <>
+                                            <Badge
+                                                variant="primary"
+                                                size="sm"
+                                                rounded
+                                            >
+                                                New
+                                            </Badge>
+                                            <Badge variant="gray" size="sm">
+                                                Unread
+                                            </Badge>
+                                        </>
                                     )}
                                 </div>
 
@@ -201,7 +214,7 @@ export const NotificationsPage: React.FC = () => {
                                         onClick={async () => {
                                             await markNotificationRead(
                                                 notification._id,
-                                            );
+                                            ).unwrap();
                                             await refetchNotifications();
                                         }}
                                     >
