@@ -106,6 +106,11 @@ export const Sidebar: React.FC = () => {
             icon: <Video size={20} />,
             text: "Meetings",
         },
+        {
+            to: "/payments",
+            icon: <FileText size={20} />,
+            text: "Payments",
+        },
         { to: "/documents", icon: <FileText size={20} />, text: "Documents" },
     ];
 
@@ -139,7 +144,17 @@ export const Sidebar: React.FC = () => {
         {
             to: "/deals",
             icon: <FileText size={20} />,
-            text: "Deals & Meetings",
+            text: "Deals",
+        },
+        {
+            to: "/meetings",
+            icon: <Video size={20} />,
+            text: "Meetings",
+        },
+        {
+            to: "/payments",
+            icon: <FileText size={20} />,
+            text: "Payments",
         },
     ];
 

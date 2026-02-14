@@ -15,6 +15,8 @@ import MessageRouter from "./routers/message.router";
 import DocumentRouter from "./routers/document.router";
 import DealRouter from "./routers/deal.router";
 import MeetingRouter from "./routers/meeting.router";
+import StripeRouter from "./routers/stripe.router";
+
 import { ErrorHandler } from "./middlewares/ErrorHandler";
 
 dotenv.config();
@@ -64,6 +66,7 @@ app.use("/api/message/", MessageRouter);
 app.use("/api/document/", DocumentRouter);
 app.use("/api/deal/", DealRouter);
 app.use("/api/meeting/", MeetingRouter);
+app.use("/api/stripe/", StripeRouter);
 
 io.engine.use(sessionMiddleware);
 

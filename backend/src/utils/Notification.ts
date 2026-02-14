@@ -12,7 +12,8 @@ interface INotificationParams {
         | "MEETING_SCHEDULED"
         | "INVESTMENT_RECEIVED"
         | "DEAL_CREATED"
-        | "DEAL_UPDATED";
+        | "DEAL_UPDATED"
+        | "PAYMENT_RECEIVED";
     message: string;
     link?: Types.ObjectId | string;
 }

@@ -27,6 +27,8 @@ import { SettingsPage } from "./pages/settings/SettingsPage";
 import { HelpPage } from "./pages/help/HelpPage";
 import { DealsPage } from "./pages/deals/DealsPage";
 import { MeetingsManager } from "./pages/meeting/MeetingPage";
+import { PaymentsPage } from "./pages/payments/PaymentsPage";
+import { PaymentSuccessPage } from "./pages/payments/PaymentSuccessPage";
 
 import { ChatPage } from "./pages/chat/ChatPage";
 import { socket } from "./socket";
@@ -84,6 +86,7 @@ function App() {
                 <Routes>
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/register" element={<RegisterPage />} />
+                    <Route path="/success" element={<PaymentSuccessPage />} />
 
                     <Route path="/" element={<DashboardLayout />}>
                         <Route
@@ -132,6 +135,7 @@ function App() {
                         <Route path="documents" element={<DocumentsPage />} />
                         <Route path="deals" element={<DealsPage />} />
                         <Route path="meetings" element={<MeetingsManager />} />
+                        <Route path="payments" element={<PaymentsPage />} />
                         <Route path="settings" element={<SettingsPage />} />
                         <Route path="help" element={<HelpPage />} />
                         <Route path="chat" element={<ChatPage />} />

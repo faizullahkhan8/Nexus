@@ -9,7 +9,8 @@ export interface INotification extends Document {
         | "NEW_MESSAGE"
         | "DOCUMENT_SHARED"
         | "MEETING_SCHEDULED"
-        | "INVESTMENT_RECEIVED";
+        | "INVESTMENT_RECEIVED"
+        | "PAYMENT_RECEIVED";
     message: string;
     link?: Types.ObjectId | string;
     isRead: boolean;
@@ -37,6 +38,7 @@ export const notificationSchema = new mongoose.Schema<INotification>(
                 "INVESTMENT_RECEIVED",
                 "DEAL_CREATED",
                 "DEAL_UPDATED",
+                "PAYMENT_RECEIVED",
             ],
             required: true,
         },

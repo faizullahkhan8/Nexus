@@ -11,12 +11,14 @@ interface Props {
     open: boolean;
     onClose: () => void;
     connections: any[];
+    initialAttendeeId?: string;
 }
 
 export const ScheduleMeetingModal: React.FC<Props> = ({
     open,
     onClose,
     connections,
+    initialAttendeeId,
 }) => {
     const user = useSelector((state: { auth: IAuthProps }) => state.auth);
     const [draft, setDraft] = React.useState({
@@ -31,6 +33,12 @@ export const ScheduleMeetingModal: React.FC<Props> = ({
     });
 
     const [schedule, { isLoading: loading }] = useScheduleMeetingMutation();
+
+    React.useEffect(() => {
+        if (open && initialAttendeeId) {
+            setDraft((p) => ({ ...p, attendeeId: initialAttendeeId }));
+        }
+    }, [open, initialAttendeeId]);
 
     if (!open) return null;
 

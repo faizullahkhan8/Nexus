@@ -1,6 +1,6 @@
 ﻿import React, { useMemo, useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { Plus } from "lucide-react";
+import { Plus, CreditCard } from "lucide-react";
 import { BadgeVariant } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
 import { Card, CardBody, CardHeader } from "../../components/ui/Card";
@@ -18,6 +18,7 @@ import {
     useUpdateDealStatusMutation,
 } from "../../services/deal.service";
 import { useGetAllUserRequestsQuery } from "../../services/requst.service";
+import { DealPaymentModal } from "../../components/deals/DealPaymentModal";
 
 const statuses: Array<{
     value: DealStatus;
@@ -52,6 +53,9 @@ export const DealsPage: React.FC = () => {
     const user = useSelector((state: { auth: IAuthProps }) => state.auth);
 
     const [search, setSearch] = useState("");
+    const [selectedDealForPayment, setSelectedDealForPayment] = useState<
+        any | null
+    >(null);
 
     const [dealDraft, setDealDraft] = useState<{
         partnerId: string;
@@ -148,6 +152,11 @@ export const DealsPage: React.FC = () => {
 
     return (
         <div className="space-y-6">
+            <DealPaymentModal
+                open={!!selectedDealForPayment}
+                onClose={() => setSelectedDealForPayment(null)}
+                deal={selectedDealForPayment}
+            />
             {/* CREATE DEAL */}
             <Card>
                 <CardHeader>
@@ -338,20 +347,36 @@ export const DealsPage: React.FC = () => {
                                             </select>
                                         </td>
                                         <td className="py-4 text-right">
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                onClick={() =>
-                                                    updateStatus({
-                                                        dealId: d._id,
-                                                        status: statusDrafts[
-                                                            d._id
-                                                        ],
-                                                    })
-                                                }
-                                            >
-                                                Update
-                                            </Button>
+                                            <div className="flex gap-2 justify-end">
+                                                <Button
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    leftIcon={
+                                                        <CreditCard size={14} />
+                                                    }
+                                                    onClick={() =>
+                                                        setSelectedDealForPayment(
+                                                            d,
+                                                        )
+                                                    }
+                                                >
+                                                    Pay
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    onClick={() =>
+                                                        updateStatus({
+                                                            dealId: d._id,
+                                                            status: statusDrafts[
+                                                                d._id
+                                                            ],
+                                                        })
+                                                    }
+                                                >
+                                                    Update
+                                                </Button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}

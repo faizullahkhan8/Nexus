@@ -18,6 +18,12 @@ import { IMessage, messageSchema } from "../models/message.model";
 import { IDocument, DocumentSchema } from "../models/Document.model";
 import { dealSchema, IDeal } from "../models/Deal.model";
 import { IMeeting, meetingSchema } from "../models/Meeting.model";
+import {
+    paymentSchema,
+    dealPaymentSchema,
+    IPayment,
+    IDealPayment,
+} from "../models/Payment.model";
 
 let LocalDbConnection: Connection;
 let LocalUserModel: Model<IUserProps>;
@@ -30,6 +36,8 @@ let LocalMessageModel: Model<IMessage>;
 let LocalDocumentModel: Model<IDocument>;
 let LocalDealModel: Model<IDeal>;
 let LocalMeetingModel: Model<IMeeting>;
+let LocalPaymentModel: Model<IPayment>;
+let LocalDealPaymentModel: Model<IDealPayment>;
 
 export const connectLocalDb = async () => {
     LocalDbConnection = await createConnection(
@@ -85,6 +93,14 @@ export const connectLocalDb = async () => {
             "Meetings",
             meetingSchema,
         );
+        LocalPaymentModel = LocalDbConnection.model<IPayment>(
+            "Payments",
+            paymentSchema,
+        );
+        LocalDealPaymentModel = LocalDbConnection.model<IDealPayment>(
+            "DealPayments",
+            dealPaymentSchema,
+        );
     }
 };
 
@@ -98,3 +114,5 @@ export const getLocalMessageModel = () => LocalMessageModel || null;
 export const getLocalDocumentModel = () => LocalDocumentModel || null;
 export const getLocalDealModel = () => LocalDealModel || null;
 export const getLocalMeetingModel = () => LocalMeetingModel || null;
+export const getLocalPaymentModel = () => LocalPaymentModel || null;
+export const getLocalDealPaymentModel = () => LocalDealPaymentModel || null;

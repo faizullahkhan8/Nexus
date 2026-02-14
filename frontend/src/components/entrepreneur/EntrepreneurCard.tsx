@@ -1,11 +1,14 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { MessageCircle, ExternalLink } from "lucide-react";
+import { MessageCircle, ExternalLink, Calendar } from "lucide-react";
 import { Entrepreneur } from "../../types";
 import { Card, CardBody, CardFooter } from "../ui/Card";
 import { Avatar } from "../ui/Avatar";
 import { Badge } from "../ui/Badge";
 import { Button } from "../ui/Button";
+import { ScheduleMeetingModal } from "../../pages/meeting/AddMeetingModel";
+import { useSelector } from "react-redux";
+import { IAuthProps } from "../../features/auth.slice";
 
 interface EntrepreneurCardProps {
     entrepreneur: Entrepreneur;
@@ -17,6 +20,8 @@ export const EntrepreneurCard: React.FC<EntrepreneurCardProps> = ({
     showActions = true,
 }) => {
     const navigate = useNavigate();
+    const user = useSelector((state: { auth: IAuthProps }) => state.auth);
+    const [isScheduleOpen, setIsScheduleOpen] = React.useState(false);
 
     const handleViewProfile = () => {
         navigate(`/profile/entrepreneur/${entrepreneur.user?._id}`);
@@ -112,16 +117,39 @@ export const EntrepreneurCard: React.FC<EntrepreneurCardProps> = ({
                         Message
                     </Button>
 
-                    <Button
-                        variant="primary"
-                        size="sm"
-                        rightIcon={<ExternalLink size={16} />}
-                        onClick={handleViewProfile}
-                    >
-                        View Profile
-                    </Button>
+                    <div className="flex gap-2">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            leftIcon={<Calendar size={16} />}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setIsScheduleOpen(true);
+                            }}
+                        >
+                            Schedule
+                        </Button>
+
+                        <Button
+                            variant="primary"
+                            size="sm"
+                            rightIcon={<ExternalLink size={16} />}
+                            onClick={handleViewProfile}
+                        >
+                            View Profile
+                        </Button>
+                    </div>
                 </CardFooter>
             )}
+
+            <ScheduleMeetingModal
+                open={isScheduleOpen}
+                onClose={() => setIsScheduleOpen(false)}
+                connections={[
+                    { _id: entrepreneur.user?._id, name: entrepreneur.name },
+                ]}
+                initialAttendeeId={entrepreneur.user?._id}
+            />
         </Card>
     );
 };

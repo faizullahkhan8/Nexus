@@ -42,6 +42,7 @@ export const MeetingsManager: React.FC = () => {
                 onClose={() => setIsAddModelOpen(false)}
                 connections={connections}
                 open={isAddModelOpen}
+                initialAttendeeId={user._id}
             />
 
             {/* Meetings List */}

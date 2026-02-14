@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Users, PieChart, Filter, Search, PlusCircle, TrendingUp } from "lucide-react";
+import {
+    Users,
+    PieChart,
+    Filter,
+    Search,
+    PlusCircle,
+    TrendingUp,
+    Calendar,
+} from "lucide-react";
 import { Button } from "../../components/ui/Button";
 import { Card, CardBody, CardHeader } from "../../components/ui/Card";
 import { Input } from "../../components/ui/Input";
@@ -12,6 +20,7 @@ import { useGetAllEntrepreneursQuery } from "../../services/auth.service";
 import { useGetAllUserRequestsQuery } from "../../services/requst.service";
 import { useGetMyDealsQuery } from "../../services/deal.service";
 import { CollaborationRequest, Entrepreneur } from "../../types";
+import { useGetMyMeetingsQuery } from "../../services/meeting.service";
 
 export const InvestorDashboard: React.FC = () => {
     const user = useSelector((state: { auth: IAuthProps }) => state.auth);
@@ -20,10 +29,18 @@ export const InvestorDashboard: React.FC = () => {
     const [entrepreneurs, setEntrepreneurs] = useState<Entrepreneur[]>([]);
 
     const { data, isLoading, error } = useGetAllEntrepreneursQuery({});
-    const { data: requestsData, isLoading: requestsLoading, error: requestsError } =
-        useGetAllUserRequestsQuery({});
-    const { data: dealsData, isLoading: dealsLoading, error: dealsError } =
-        useGetMyDealsQuery();
+    const {
+        data: requestsData,
+        isLoading: requestsLoading,
+        error: requestsError,
+    } = useGetAllUserRequestsQuery({});
+    const {
+        data: dealsData,
+        isLoading: dealsLoading,
+        error: dealsError,
+    } = useGetMyDealsQuery();
+    const { data: meetingsData, isLoading: meetingsLoading } =
+        useGetMyMeetingsQuery();
 
     useEffect(() => {
         // Reset filters on mount
@@ -85,6 +102,13 @@ export const InvestorDashboard: React.FC = () => {
 
         return connectedUserIds.size;
     })();
+
+    const upcomingMeetingsCount =
+        meetingsData?.meetings?.filter(
+            (meeting) =>
+                meeting.status === "scheduled" &&
+                new Date(meeting.startTime).getTime() >= Date.now(),
+        ).length ?? 0;
 
     const activeDealsCount =
         dealsData?.deals?.filter(
@@ -231,7 +255,10 @@ export const InvestorDashboard: React.FC = () => {
                     <CardBody>
                         <div className="flex items-center">
                             <div className="p-3 bg-success-100 rounded-full mr-4">
-                                <TrendingUp size={20} className="text-success-700" />
+                                <TrendingUp
+                                    size={20}
+                                    className="text-success-700"
+                                />
                             </div>
                             <div>
                                 <p className="text-sm font-medium text-success-700">
@@ -239,6 +266,27 @@ export const InvestorDashboard: React.FC = () => {
                                 </p>
                                 <h3 className="text-xl font-semibold text-success-900">
                                     {activeDealsCount}
+                                </h3>
+                            </div>
+                        </div>
+                    </CardBody>
+                </Card>
+
+                <Card className="bg-accent-50 border border-accent-100">
+                    <CardBody>
+                        <div className="flex items-center">
+                            <div className="p-3 bg-accent-100 rounded-full mr-4">
+                                <Calendar
+                                    size={20}
+                                    className="text-accent-700"
+                                />
+                            </div>
+                            <div>
+                                <p className="text-sm font-medium text-accent-700">
+                                    Upcoming Meetings
+                                </p>
+                                <h3 className="text-xl font-semibold text-accent-900">
+                                    {upcomingMeetingsCount}
                                 </h3>
                             </div>
                         </div>
