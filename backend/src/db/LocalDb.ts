@@ -40,9 +40,12 @@ let LocalPaymentModel: Model<IPayment>;
 let LocalDealPaymentModel: Model<IDealPayment>;
 
 export const connectLocalDb = async () => {
-    LocalDbConnection = await createConnection(
-        process.env.DB_URI || "",
-    ).asPromise();
+    const mongo_uri =
+        process.env.NODE_ENV === "production"
+            ? process.env.MONGO_URI_ONLINE
+            : process.env.DB_URI;
+
+    LocalDbConnection = await createConnection(mongo_uri || "").asPromise();
 
     if (LocalDbConnection.host) {
         console.log("Db connected to :" + LocalDbConnection.host);

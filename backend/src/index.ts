@@ -22,7 +22,7 @@ import { ErrorHandler } from "./middlewares/ErrorHandler";
 dotenv.config();
 
 const corsOptions = {
-    origin: "http://localhost:5173",
+    origin: [process.env.FRONTEND_URL || "", "http://localhost:5173"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
 };
@@ -115,9 +115,19 @@ io.use((socket, next) => {
     next();
 });
 
-server.listen(PORT, () => {
-    console.log(`Server is running at http://localhost:${PORT}`);
-    connectLocalDb();
-});
+// Connect to DB once at startup, then start the server
+connectLocalDb()
+    .then(() => {
+        console.log("✅ Database connected successfully");
+        server.listen(process.env.PORT || 3000, () => {
+            console.log(
+                `Server is running on port ${process.env.PORT || 3000}`,
+            );
+        });
+    })
+    .catch((err) => {
+        console.error("❌ Initial DB connection failed:", err);
+        process.exit(1);
+    });
 
 app.use(ErrorHandler);

@@ -1,10 +1,12 @@
 // src/store/api/apiSlice.ts
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
 export const apiSlice = createApi({
     reducerPath: "api",
     baseQuery: fetchBaseQuery({
-        baseUrl: "http://localhost:3000/api",
+        baseUrl: BACKEND_URL || "",
         credentials: "include",
         prepareHeaders: (headers) => {
             headers.set("Accept", "application/json");
