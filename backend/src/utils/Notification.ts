@@ -10,7 +10,9 @@ interface INotificationParams {
         | "NEW_MESSAGE"
         | "DOCUMENT_SHARED"
         | "MEETING_SCHEDULED"
-        | "INVESTMENT_RECEIVED";
+        | "INVESTMENT_RECEIVED"
+        | "DEAL_CREATED"
+        | "DEAL_UPDATED";
     message: string;
     link?: Types.ObjectId | string;
 }
@@ -33,7 +35,10 @@ export const createNotificationUtil = async (
 
         const populatedNotification = await LocalNotificationModel.findById(
             notification._id,
-        ).populate("sender", "_id name email avatarUrl role isOnline createdAt");
+        ).populate(
+            "sender",
+            "_id name email avatarUrl role isOnline createdAt",
+        );
 
         io.to(`user:${params.recipient}`).emit(
             "notification",

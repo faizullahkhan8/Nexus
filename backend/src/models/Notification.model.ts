@@ -35,6 +35,8 @@ export const notificationSchema = new mongoose.Schema<INotification>(
                 "DOCUMENT_SHARED",
                 "MEETING_SCHEDULED",
                 "INVESTMENT_RECEIVED",
+                "DEAL_CREATED",
+                "DEAL_UPDATED",
             ],
             required: true,
         },

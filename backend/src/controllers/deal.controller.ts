@@ -1,9 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import asyncHandler from "express-async-handler";
-import {
-    getLocalDealModel,
-    getLocalNotificationModel,
-} from "../db/LocalDb";
+import { getLocalDealModel, getLocalNotificationModel } from "../db/LocalDb";
 import ErrorResponse from "../utils/ErrorResponse";
 import { createNotificationUtil } from "../utils/Notification";
 import { DealStatus } from "../models/Deal.model";
@@ -39,25 +36,56 @@ export const createDeal = asyncHandler(
             return next(new ErrorResponse("Deal model unavailable", 500));
         }
 
-        const userId = req.session.user?._id;
-        const userRole = req.session.user?.role;
-        const { counterpartyId, title, amount, equity, stage, notes } = req.body;
-        const expectedCloseDate = req.body.expectedCloseDate
-            ? new Date(req.body.expectedCloseDate)
-            : undefined;
-
-        if (!userId) {
+        const sessionUser = req.session.user;
+        if (!sessionUser?._id) {
             return next(new ErrorResponse("Not authorized", 401));
         }
 
-        if (!counterpartyId || !title?.trim()) {
+        const userId = sessionUser._id;
+        const userRole = sessionUser.role;
+
+        const {
+            investorId: bodyInvestorId,
+            startupId: bodyStartupId,
+            title,
+            amount,
+            equity,
+            stage,
+            status,
+            notes,
+            expectedCloseDate,
+        } = req.body;
+
+        if (!title?.trim()) {
+            return next(new ErrorResponse("Title is required", 400));
+        }
+
+        if (!bodyInvestorId || !bodyStartupId) {
             return next(
-                new ErrorResponse("Counterparty and title are required", 400),
+                new ErrorResponse("InvestorId and StartupId are required", 400),
             );
         }
 
-        if (counterpartyId === userId) {
-            return next(new ErrorResponse("Invalid counterparty", 400));
+        if (bodyInvestorId === bodyStartupId) {
+            return next(
+                new ErrorResponse(
+                    "Investor and Startup cannot be the same",
+                    400,
+                ),
+            );
+        }
+
+        // Role enforcement
+        if (
+            (userRole === "investor" && bodyInvestorId !== userId) ||
+            (userRole === "entrepreneur" && bodyStartupId !== userId)
+        ) {
+            return next(
+                new ErrorResponse(
+                    "You are not authorized to create this deal",
+                    403,
+                ),
+            );
         }
 
         const numericAmount = Number(amount);
@@ -78,25 +106,31 @@ export const createDeal = asyncHandler(
             );
         }
 
-        let investorId = userId;
-        let startupId = counterpartyId;
+        const allowedStages = [
+            "Pre-seed",
+            "Seed",
+            "Series A",
+            "Series B",
+            "Series C",
+            "Growth",
+        ];
 
-        if (userRole === "entrepreneur") {
-            investorId = counterpartyId;
-            startupId = userId;
-        } else if (userRole !== "investor") {
-            return next(new ErrorResponse("Invalid user role", 403));
+        if (!allowedStages.includes(stage)) {
+            return next(new ErrorResponse("Invalid deal stage", 400));
         }
 
         const deal = await LocalDealModel.create({
             title: title.trim(),
-            investorId,
-            startupId,
+            investorId: bodyInvestorId,
+            startupId: bodyStartupId,
             amount: numericAmount,
             equity: numericEquity,
             stage,
-            notes,
-            expectedCloseDate,
+            status: status ?? "prospecting",
+            notes: notes?.trim(),
+            expectedCloseDate: expectedCloseDate
+                ? new Date(expectedCloseDate)
+                : undefined,
             createdBy: userId,
             lastActivity: new Date(),
         });
@@ -106,12 +140,15 @@ export const createDeal = asyncHandler(
             .populate("startupId", "_id name email avatarUrl role isOnline")
             .populate("createdBy", "_id name email avatarUrl role isOnline");
 
+        const recipientId =
+            userId === bodyInvestorId ? bodyStartupId : bodyInvestorId;
+
         await createNotificationUtil(
             {
                 sender: userId,
-                recipient: counterpartyId,
-                message: `${req.session.user?.name} created a deal: ${deal.title}`,
-                type: "INVESTMENT_RECEIVED",
+                recipient: recipientId,
+                message: `${sessionUser.name} created a deal: ${deal.title}`,
+                type: "DEAL_CREATED",
                 link: deal._id,
             },
             getLocalNotificationModel,
@@ -144,7 +181,10 @@ export const getMyDeals = asyncHandler(
             $or: [{ investorId: userId }, { startupId: userId }],
         };
 
-        if (typeof status === "string" && DEAL_STATUSES.includes(status as DealStatus)) {
+        if (
+            typeof status === "string" &&
+            DEAL_STATUSES.includes(status as DealStatus)
+        ) {
             query.status = status;
         }
 
@@ -162,6 +202,17 @@ export const getMyDeals = asyncHandler(
     },
 );
 
+import mongoose from "mongoose";
+
+const ALLOWED_STATUSES = [
+    "prospecting",
+    "due_diligence",
+    "term_sheet",
+    "negotiation",
+    "closed_won",
+    "closed_lost",
+] as const;
+
 export const updateDealStatus = asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
         const LocalDealModel = getLocalDealModel();
@@ -170,14 +221,19 @@ export const updateDealStatus = asyncHandler(
             return next(new ErrorResponse("Deal model unavailable", 500));
         }
 
-        const userId = req.session.user?._id;
-        const { dealId, status } = req.body;
-
-        if (!userId) {
+        const sessionUser = req.session.user;
+        if (!sessionUser?._id) {
             return next(new ErrorResponse("Not authorized", 401));
         }
 
-        if (!DEAL_STATUSES.includes(status)) {
+        const userId = sessionUser._id;
+        const { dealId, status } = req.body;
+
+        if (!dealId || !mongoose.Types.ObjectId.isValid(dealId)) {
+            return next(new ErrorResponse("Invalid deal ID", 400));
+        }
+
+        if (!ALLOWED_STATUSES.includes(status)) {
             return next(new ErrorResponse("Invalid deal status", 400));
         }
 
@@ -187,12 +243,25 @@ export const updateDealStatus = asyncHandler(
             return next(new ErrorResponse("Deal not found", 404));
         }
 
-        if (!isDealParticipant(deal, userId)) {
-            return next(new ErrorResponse("Not authorized to update deal", 403));
+        const isParticipant =
+            deal.investorId.toString() === userId ||
+            deal.startupId.toString() === userId;
+
+        if (!isParticipant) {
+            return next(
+                new ErrorResponse("Not authorized to update this deal", 403),
+            );
+        }
+
+        if (deal.status === status) {
+            return next(
+                new ErrorResponse("Deal is already in this status", 400),
+            );
         }
 
         deal.status = status;
         deal.lastActivity = new Date();
+
         await deal.save();
 
         const updatedDeal = await LocalDealModel.findById(deal._id)
@@ -200,19 +269,24 @@ export const updateDealStatus = asyncHandler(
             .populate("startupId", "_id name email avatarUrl role isOnline")
             .populate("createdBy", "_id name email avatarUrl role isOnline");
 
-        const recipientId = getCounterPartyId(deal, userId);
-        if (recipientId) {
-            await createNotificationUtil(
-                {
-                    sender: userId,
-                    recipient: recipientId,
-                    message: `${req.session.user?.name} updated deal status to ${status.replace("_", " ")}`,
-                    type: "INVESTMENT_RECEIVED",
-                    link: deal._id,
-                },
-                getLocalNotificationModel,
-            );
-        }
+        const recipientId =
+            deal.investorId.toString() === userId
+                ? deal.startupId
+                : deal.investorId;
+
+        await createNotificationUtil(
+            {
+                sender: userId,
+                recipient: recipientId,
+                message: `${sessionUser.name} changed deal status to ${status.replace(
+                    "_",
+                    " ",
+                )}`,
+                type: "DEAL_UPDATED",
+                link: deal._id,
+            },
+            getLocalNotificationModel,
+        );
 
         res.status(200).json({
             success: true,
@@ -252,7 +326,9 @@ export const updateDealDetails = asyncHandler(
         }
 
         if (!isDealParticipant(deal, userId)) {
-            return next(new ErrorResponse("Not authorized to update deal", 403));
+            return next(
+                new ErrorResponse("Not authorized to update deal", 403),
+            );
         }
 
         if (title !== undefined) {

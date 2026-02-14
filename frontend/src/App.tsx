@@ -26,6 +26,8 @@ import { DocumentsPage } from "./pages/documents/DocumentsPage";
 import { SettingsPage } from "./pages/settings/SettingsPage";
 import { HelpPage } from "./pages/help/HelpPage";
 import { DealsPage } from "./pages/deals/DealsPage";
+import { MeetingsManager } from "./pages/meeting/MeetingPage";
+
 import { ChatPage } from "./pages/chat/ChatPage";
 import { socket } from "./socket";
 import { useSelector } from "react-redux";
@@ -93,7 +95,6 @@ function App() {
                                 />
                             }
                         />
-
                         <Route
                             path="dashboard/entrepreneur"
                             element={<EntrepreneurDashboard />}
@@ -102,7 +103,6 @@ function App() {
                             path="dashboard/investor"
                             element={<InvestorDashboard />}
                         />
-
                         <Route
                             path="profile/entrepreneur/:id"
                             element={<EntrepreneurProfile />}
@@ -119,7 +119,6 @@ function App() {
                             path="profile/investor/edit"
                             element={<InvestorEditProfile />}
                         />
-
                         <Route path="investors" element={<InvestorsPage />} />
                         <Route
                             path="entrepreneurs"
@@ -132,9 +131,9 @@ function App() {
                         />
                         <Route path="documents" element={<DocumentsPage />} />
                         <Route path="deals" element={<DealsPage />} />
+                        <Route path="meetings" element={<MeetingsManager />} />
                         <Route path="settings" element={<SettingsPage />} />
                         <Route path="help" element={<HelpPage />} />
-
                         <Route path="chat" element={<ChatPage />} />
                         <Route path="chat/:userId" element={<ChatPage />} />
                     </Route>

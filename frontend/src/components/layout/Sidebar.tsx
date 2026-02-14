@@ -10,6 +10,7 @@ import {
     FileText,
     Settings,
     HelpCircle,
+    Video,
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { IAuthProps } from "../../features/auth.slice";
@@ -52,15 +53,12 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
 
 export const Sidebar: React.FC = () => {
     const user = useSelector((state: { auth: IAuthProps }) => state.auth);
-    const { data: notificationsData } = useGetAllNotificationsQuery(
-        undefined,
-        {
-            skip: !user?._id,
-            pollingInterval: 30000,
-            refetchOnFocus: true,
-            refetchOnReconnect: true,
-        },
-    );
+    const { data: notificationsData } = useGetAllNotificationsQuery(undefined, {
+        skip: !user?._id,
+        pollingInterval: 30000,
+        refetchOnFocus: true,
+        refetchOnReconnect: true,
+    });
 
     const unreadNotificationsCount =
         notificationsData?.unreadCount ??
@@ -101,7 +99,12 @@ export const Sidebar: React.FC = () => {
         {
             to: "/deals",
             icon: <FileText size={20} />,
-            text: "Deals & Meetings",
+            text: "Deals",
+        },
+        {
+            to: "/meetings",
+            icon: <Video size={20} />,
+            text: "Meetings",
         },
         { to: "/documents", icon: <FileText size={20} />, text: "Documents" },
     ];
@@ -133,7 +136,11 @@ export const Sidebar: React.FC = () => {
             text: "Notifications",
             unreadCount: unreadNotificationsCount,
         },
-        { to: "/deals", icon: <FileText size={20} />, text: "Deals & Meetings" },
+        {
+            to: "/deals",
+            icon: <FileText size={20} />,
+            text: "Deals & Meetings",
+        },
     ];
 
     const sidebarItems =

@@ -92,11 +92,11 @@ export const EntrepreneurProfile: React.FC = () => {
         requestSent ||
         (isInvestor && id && getAllUserRequestsData?.requests
             ? getAllUserRequestsData.requests.some(
-                (req: CollaborationRequest) => {
-                    const receiverId = req.receiverId?._id || req.receiverId;
-                    return receiverId.toString() === id;
-                },
-            )
+                  (req: CollaborationRequest) => {
+                      const receiverId = req.receiverId?._id || req.receiverId;
+                      return receiverId.toString() === id;
+                  },
+              )
             : false);
 
     const handleSendRequest = () => {
@@ -138,7 +138,11 @@ export const EntrepreneurProfile: React.FC = () => {
 
     return (
         <div className="space-y-6 animate-fade-in">
-            <DocumentPreviewer doc={selectedDoc} isOpen={!!selectedDoc} onClose={() => setSelectedDoc(null)} />
+            <DocumentPreviewer
+                doc={selectedDoc}
+                isOpen={!!selectedDoc}
+                onClose={() => setSelectedDoc(null)}
+            />
             {/* Profile header */}
             <Card>
                 <CardBody className="sm:flex sm:items-start sm:justify-between p-6">
@@ -355,19 +359,19 @@ export const EntrepreneurProfile: React.FC = () => {
                                         />
                                         <p className="text-lg font-semibold text-gray-900">
                                             {entrepreneur.fundingRound.length >
-                                                0
+                                            0
                                                 ? entrepreneur.fundingRound.map(
-                                                    (round, index) =>
-                                                        round.isCurrent && (
-                                                            <span key={index}>
-                                                                {round.amount.toLocaleString()}{" "}
-                                                                -{" "}
-                                                                {getRoundLabel(
-                                                                    round.round,
-                                                                )}
-                                                            </span>
-                                                        ),
-                                                )
+                                                      (round, index) =>
+                                                          round.isCurrent && (
+                                                              <span key={index}>
+                                                                  {round.amount.toLocaleString()}{" "}
+                                                                  -{" "}
+                                                                  {getRoundLabel(
+                                                                      round.round,
+                                                                  )}
+                                                              </span>
+                                                          ),
+                                                  )
                                                 : "No funding data available"}
                                         </p>
                                     </div>
@@ -383,7 +387,7 @@ export const EntrepreneurProfile: React.FC = () => {
                                             className="text-accent-600 mr-1"
                                         />
                                         {entrepreneur.valuation.min &&
-                                            entrepreneur.valuation.max
+                                        entrepreneur.valuation.max
                                             ? `${entrepreneur.valuation.min.toLocaleString()}M - ${entrepreneur.valuation.max.toLocaleString()}M`
                                             : "No valuation data available"}
                                     </p>
@@ -396,24 +400,24 @@ export const EntrepreneurProfile: React.FC = () => {
                                     <p className="text-md font-medium text-gray-900">
                                         {entrepreneur.fundingRound.length > 1
                                             ? entrepreneur.fundingRound
-                                                .filter(
-                                                    (round) =>
-                                                        !round.isCurrent,
-                                                )
-                                                .map((round, index) => (
-                                                    <span key={index}>
-                                                        $
-                                                        {round.amount.toLocaleString()}{" "}
-                                                        {getRoundLabel(
-                                                            round.round,
-                                                        )}{" "}
-                                                        (
-                                                        {new Date(
-                                                            round.date,
-                                                        ).getFullYear()}
-                                                        )
-                                                    </span>
-                                                ))
+                                                  .filter(
+                                                      (round) =>
+                                                          !round.isCurrent,
+                                                  )
+                                                  .map((round, index) => (
+                                                      <span key={index}>
+                                                          $
+                                                          {round.amount.toLocaleString()}{" "}
+                                                          {getRoundLabel(
+                                                              round.round,
+                                                          )}{" "}
+                                                          (
+                                                          {new Date(
+                                                              round.date,
+                                                          ).getFullYear()}
+                                                          )
+                                                      </span>
+                                                  ))
                                             : "No previous funding data available"}
                                     </p>
                                 </div>
@@ -425,10 +429,10 @@ export const EntrepreneurProfile: React.FC = () => {
                                     <div className="mt-2 space-y-2">
                                         {entrepreneur.fundingRound.length ===
                                             0 && (
-                                                <p className="text-gray-500 italic">
-                                                    No funding rounds available
-                                                </p>
-                                            )}
+                                            <p className="text-gray-500 italic">
+                                                No funding rounds available
+                                            </p>
+                                        )}
                                         {entrepreneur.fundingRound.map(
                                             (round, index) => (
                                                 <div
@@ -478,7 +482,8 @@ export const EntrepreneurProfile: React.FC = () => {
                             <Link to={"/documents"}>
                                 <Button variant="outline" size="sm">
                                     View All
-                                </Button></Link>
+                                </Button>
+                            </Link>
                         </CardHeader>
                         <CardBody>
                             <div className="space-y-3">
@@ -514,22 +519,29 @@ export const EntrepreneurProfile: React.FC = () => {
 
                                                 <div className="flex gap-2 items-center">
                                                     <Button
-                                                        onClick={() => setSelectedDoc(doc)}
+                                                        onClick={() =>
+                                                            setSelectedDoc(doc)
+                                                        }
                                                         variant="outline"
                                                         size="xs"
                                                     >
                                                         <Eye size={14} />
                                                     </Button>
-                                                    <Link to={doc.cloudinaryUrl} target="_blank" rel="noopener noreferrer">
+                                                    <Link
+                                                        to={doc.cloudinaryUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                    >
                                                         <Button
                                                             variant="outline"
                                                             size="xs"
                                                         >
-                                                            <Download size={14} />
+                                                            <Download
+                                                                size={14}
+                                                            />
                                                         </Button>
                                                     </Link>
                                                 </div>
-
                                             </div>
                                         ))}
                             </div>

@@ -23,6 +23,7 @@ export interface ScheduleMeetingPayload {
     meetingLink?: string;
     location?: string;
     relatedDealId?: string;
+    scheduledBy: string;
 }
 
 export interface RescheduleMeetingPayload {
@@ -35,16 +36,17 @@ export interface RescheduleMeetingPayload {
 
 export const meetingApi = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
-        scheduleMeeting: builder.mutation<MeetingResponse, ScheduleMeetingPayload>(
-            {
-                query: (meetingData) => ({
-                    url: "/meeting/schedule",
-                    method: "POST",
-                    body: meetingData,
-                }),
-                invalidatesTags: [{ type: "Meeting", id: "LIST" }],
-            },
-        ),
+        scheduleMeeting: builder.mutation<
+            MeetingResponse,
+            ScheduleMeetingPayload
+        >({
+            query: (meetingData) => ({
+                url: "/meeting/schedule",
+                method: "POST",
+                body: meetingData,
+            }),
+            invalidatesTags: [{ type: "Meeting", id: "LIST" }],
+        }),
         getMyMeetings: builder.query<
             MeetingsResponse,
             { status?: MeetingStatus } | void

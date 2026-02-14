@@ -14,11 +14,13 @@ interface DealResponse {
 }
 
 export interface CreateDealPayload {
-    counterpartyId: string;
     title: string;
     amount: number;
     equity: number;
     stage: DealStage;
+    status?: DealStatus;
+    lastActivity?: Date;
+    createdBy: String;
     notes?: string;
     expectedCloseDate?: string;
 }
