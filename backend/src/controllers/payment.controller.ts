@@ -358,7 +358,7 @@ export const stripeWebhookHandler = asyncHandler(
 );
 
 export const verifyPaymentSession = asyncHandler(
-    async (req: Request, res: Response, next: NextFunction) => {
+    async (req: Request, res: Response, next: NextFunction): Promise<any> => {
         const LocalDealPaymentModel = getLocalDealPaymentModel();
         if (!LocalDealPaymentModel)
             return next(
