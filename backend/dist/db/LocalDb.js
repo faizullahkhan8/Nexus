@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getLocalMeetingModel = exports.getLocalDealModel = exports.getLocalDocumentModel = exports.getLocalMessageModel = exports.getLocalConversationModel = exports.getLocalNotificationModel = exports.getLocalRequestModel = exports.getLocalInvestorModel = exports.getLocalEntrepreneurModel = exports.getLocalUserModel = exports.connectLocalDb = void 0;
+exports.getLocalDealPaymentModel = exports.getLocalPaymentModel = exports.getLocalMeetingModel = exports.getLocalDealModel = exports.getLocalDocumentModel = exports.getLocalMessageModel = exports.getLocalConversationModel = exports.getLocalNotificationModel = exports.getLocalRequestModel = exports.getLocalInvestorModel = exports.getLocalEntrepreneurModel = exports.getLocalUserModel = exports.connectLocalDb = void 0;
 const mongoose_1 = require("mongoose");
 const User_model_1 = require("../models/User.model");
 const Entrepreneur_model_1 = require("../models/Entrepreneur.model");
@@ -12,6 +12,7 @@ const message_model_1 = require("../models/message.model");
 const Document_model_1 = require("../models/Document.model");
 const Deal_model_1 = require("../models/Deal.model");
 const Meeting_model_1 = require("../models/Meeting.model");
+const Payment_model_1 = require("../models/Payment.model");
 let LocalDbConnection;
 let LocalUserModel;
 let LocalEntrepreneurModel;
@@ -23,8 +24,10 @@ let LocalMessageModel;
 let LocalDocumentModel;
 let LocalDealModel;
 let LocalMeetingModel;
+let LocalPaymentModel;
+let LocalDealPaymentModel;
 const connectLocalDb = async () => {
-    LocalDbConnection = await (0, mongoose_1.createConnection)(process.env.DB_URI || "").asPromise();
+    LocalDbConnection = await (0, mongoose_1.createConnection)(process.env.MONGO_URI_ONLINE || "").asPromise();
     if (LocalDbConnection.host) {
         console.log("Db connected to :" + LocalDbConnection.host);
         LocalUserModel = LocalDbConnection.model("Users", User_model_1.UserSchema);
@@ -37,6 +40,8 @@ const connectLocalDb = async () => {
         LocalDocumentModel = LocalDbConnection.model("Documents", Document_model_1.DocumentSchema);
         LocalDealModel = LocalDbConnection.model("Deals", Deal_model_1.dealSchema);
         LocalMeetingModel = LocalDbConnection.model("Meetings", Meeting_model_1.meetingSchema);
+        LocalPaymentModel = LocalDbConnection.model("Payments", Payment_model_1.paymentSchema);
+        LocalDealPaymentModel = LocalDbConnection.model("DealPayments", Payment_model_1.dealPaymentSchema);
     }
 };
 exports.connectLocalDb = connectLocalDb;
@@ -60,3 +65,7 @@ const getLocalDealModel = () => LocalDealModel || null;
 exports.getLocalDealModel = getLocalDealModel;
 const getLocalMeetingModel = () => LocalMeetingModel || null;
 exports.getLocalMeetingModel = getLocalMeetingModel;
+const getLocalPaymentModel = () => LocalPaymentModel || null;
+exports.getLocalPaymentModel = getLocalPaymentModel;
+const getLocalDealPaymentModel = () => LocalDealPaymentModel || null;
+exports.getLocalDealPaymentModel = getLocalDealPaymentModel;

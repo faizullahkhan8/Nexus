@@ -19,10 +19,11 @@ const message_router_1 = __importDefault(require("./routers/message.router"));
 const document_router_1 = __importDefault(require("./routers/document.router"));
 const deal_router_1 = __importDefault(require("./routers/deal.router"));
 const meeting_router_1 = __importDefault(require("./routers/meeting.router"));
+const stripe_router_1 = __importDefault(require("./routers/stripe.router"));
 const ErrorHandler_1 = require("./middlewares/ErrorHandler");
 dotenv_1.default.config();
 const corsOptions = {
-    origin: "http://localhost:5173",
+    origin: [process.env.FRONTEND_URL || "", "http://localhost:5173"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
 };
@@ -31,7 +32,6 @@ const server = (0, node_http_1.createServer)(app);
 exports.io = new socket_io_1.Server(server, {
     cors: corsOptions,
 });
-const PORT = process.env.PORT || 3000;
 app.use(express_1.default.json({ limit: "50mb" }));
 app.use(express_1.default.urlencoded({ extended: true, limit: "50mb" }));
 app.use((0, cors_1.default)(corsOptions));
@@ -60,6 +60,7 @@ app.use("/api/message/", message_router_1.default);
 app.use("/api/document/", document_router_1.default);
 app.use("/api/deal/", deal_router_1.default);
 app.use("/api/meeting/", meeting_router_1.default);
+app.use("/api/stripe/", stripe_router_1.default);
 exports.io.engine.use(sessionMiddleware);
 exports.io.on("connection", (socket) => {
     const session = socket.request.session;
@@ -97,8 +98,16 @@ exports.io.use((socket, next) => {
     }
     next();
 });
-server.listen(PORT, () => {
-    console.log(`Server is running at http://localhost:${PORT}`);
-    (0, LocalDb_1.connectLocalDb)();
+// Connect to DB once at startup, then start the server
+(0, LocalDb_1.connectLocalDb)()
+    .then(() => {
+    console.log("✅ Database connected successfully");
+    server.listen(process.env.PORT || 3000, () => {
+        console.log(`Server is running on port ${process.env.PORT || 3000}`);
+    });
+})
+    .catch((err) => {
+    console.error("❌ Initial DB connection failed:", err);
+    process.exit(1);
 });
 app.use(ErrorHandler_1.ErrorHandler);
