@@ -58,6 +58,13 @@ const sessionMiddleware = session({
 
 app.use(sessionMiddleware);
 
+app.get("/", (req, res) => {
+    return res.status(200).json({
+        success: true,
+        message: "API server is running...",
+    });
+});
+
 app.use("/api/auth/", AuthRouter);
 app.use("/api/request/", RequestRouter);
 app.use("/api/notification/", NotificationRouter);
