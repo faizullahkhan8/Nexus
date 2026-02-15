@@ -40,16 +40,25 @@ export const signup = asyncHandler(
                     user: user._id,
                     startupName: "My Startup",
                     industry: "Not Specified",
+                    bio: "Not Specified",
                     pitchSummary: "Draft Summary",
                     location: "Not Specified",
                     foundedYear: new Date().getFullYear(),
                     startupOverview: [],
                     team: [],
+                    valuation: {
+                        min: 0,
+                        max: 0,
+                    },
+                    profileViews: 0,
+                    fundingRound: [],
                 });
             } else if (role === "investor") {
                 await LocalInvestorModel.create({
                     user: user._id,
                     investmentInterests: [],
+                    investmentCriteria: [],
+                    profileViews: 0,
                     investmentStages: [],
                     portfolioCompanies: [],
                     investmentRange: { minAmount: 0, maxAmount: 0 },

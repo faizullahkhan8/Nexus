@@ -119,13 +119,6 @@ export const NotificationsPage: React.FC = () => {
     };
 
     if (
-        notificationError ||
-        markNotificationReadError ||
-        markNotificationsAsAllReadError
-    )
-        return <p>something went wronge try agian.</p>;
-
-    if (
         notificationLaoding ||
         markNotificationsReadLoading ||
         markNotificationsAsAllReadLoading

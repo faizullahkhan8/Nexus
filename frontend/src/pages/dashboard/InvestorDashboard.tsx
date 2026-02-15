@@ -130,10 +130,6 @@ export const InvestorDashboard: React.FC = () => {
         return <div>Loading...</div>;
     }
 
-    if (error || requestsError || dealsError) {
-        return <div>Error loading entrepreneurs.</div>;
-    }
-
     return (
         <div className="space-y-6 animate-fade-in">
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">

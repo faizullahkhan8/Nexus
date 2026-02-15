@@ -96,9 +96,6 @@ export const EntrepreneurDashboard: React.FC = () => {
     ) {
         return <p>Loading...</p>;
     }
-    if (requstError || investorError || meetingsError || notificationsError) {
-        return <p>Something went wronge! try agian later.</p>;
-    }
 
     return (
         <div className="space-y-6 animate-fade-in">

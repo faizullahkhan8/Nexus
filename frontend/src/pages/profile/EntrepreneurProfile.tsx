@@ -128,10 +128,6 @@ export const EntrepreneurProfile: React.FC = () => {
         }
     };
 
-    if (createRequestError || getRequestError || getDocumentsError) {
-        return toast.error("somthing went wronge. Please try again later.");
-    }
-
     if (creaetRequestLoading || getRequestLoading || getDocumentsLoading) {
         return toast.loading("Somthing is Loading...");
     }
