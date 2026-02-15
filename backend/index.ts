@@ -28,9 +28,11 @@ const corsOptions = {
 };
 
 const app = express();
+app.set("trust proxy", 1);
 const server = createServer(app);
 export const io = new Server(server, {
     cors: corsOptions,
+    transports: ["websocket"],
 });
 
 app.use(express.json({ limit: "50mb" }));
@@ -51,8 +53,8 @@ const sessionMiddleware = session({
     cookie: {
         maxAge: 1000 * 60 * 60 * 24, // 1 day in milliseconds
         httpOnly: true,
-        secure: false,
-        sameSite: "lax",
+        secure: true, // MUST be true in production
+        sameSite: "none", // required for cross-origin
     },
 });
 
