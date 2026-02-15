@@ -42,7 +42,7 @@ const sessionMiddleware = session({
     name: "session",
     secret: process.env.SESSION_SECRET || "",
     store: MongoStore.create({
-        mongoUrl: process.env.DB_URI,
+        mongoUrl: process.env.MONGO_URI_ONLINE,
         collectionName: "sessions",
         ttl: 60 * 60 * 24, // 1 day in seconds
     }),
