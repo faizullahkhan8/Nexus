@@ -27,7 +27,9 @@ let LocalMeetingModel;
 let LocalPaymentModel;
 let LocalDealPaymentModel;
 const connectLocalDb = async () => {
-    LocalDbConnection = await (0, mongoose_1.createConnection)(process.env.MONGO_URI_ONLINE || "").asPromise();
+    LocalDbConnection = await (0, mongoose_1.createConnection)(process.env.MONGO_URI_ONLINE || "", {
+        dbName: "nexus",
+    }).asPromise();
     if (LocalDbConnection.host) {
         console.log("Db connected to :" + LocalDbConnection.host);
         LocalUserModel = LocalDbConnection.model("Users", User_model_1.UserSchema);

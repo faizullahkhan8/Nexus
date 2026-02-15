@@ -42,6 +42,9 @@ let LocalDealPaymentModel: Model<IDealPayment>;
 export const connectLocalDb = async () => {
     LocalDbConnection = await createConnection(
         process.env.MONGO_URI_ONLINE || "",
+        {
+            dbName: "nexus",
+        },
     ).asPromise();
 
     if (LocalDbConnection.host) {

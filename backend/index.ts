@@ -121,19 +121,9 @@ io.use((socket, next) => {
     next();
 });
 
-// Connect to DB once at startup, then start the server
-connectLocalDb()
-    .then(() => {
-        console.log("✅ Database connected successfully");
-        server.listen(process.env.PORT || 3000, () => {
-            console.log(
-                `Server is running on port ${process.env.PORT || 3000}`,
-            );
-        });
-    })
-    .catch((err) => {
-        console.error("❌ Initial DB connection failed:", err);
-        process.exit(1);
-    });
+server.listen(process.env.PORT, () => {
+    connectLocalDb();
+    console.log("Server is running...");
+});
 
 app.use(ErrorHandler);

@@ -53,6 +53,12 @@ const sessionMiddleware = (0, express_session_1.default)({
     },
 });
 app.use(sessionMiddleware);
+app.get("/", (req, res) => {
+    return res.status(200).json({
+        success: true,
+        message: "API server is running...",
+    });
+});
 app.use("/api/auth/", auth_router_1.default);
 app.use("/api/request/", request_router_1.default);
 app.use("/api/notification/", notification_router_1.default);
@@ -98,16 +104,8 @@ exports.io.use((socket, next) => {
     }
     next();
 });
-// Connect to DB once at startup, then start the server
-(0, LocalDb_1.connectLocalDb)()
-    .then(() => {
-    console.log("✅ Database connected successfully");
-    server.listen(process.env.PORT || 3000, () => {
-        console.log(`Server is running on port ${process.env.PORT || 3000}`);
-    });
-})
-    .catch((err) => {
-    console.error("❌ Initial DB connection failed:", err);
-    process.exit(1);
+server.listen(process.env.PORT, () => {
+    (0, LocalDb_1.connectLocalDb)();
+    console.log("Server is running...");
 });
 app.use(ErrorHandler_1.ErrorHandler);
